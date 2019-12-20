@@ -12,14 +12,11 @@ from sqlalchemy import between
 
 from ckan.lib.helpers import url_for
 from ckan.logic import get_action
-from ckan.model import Package, Session, Group, PackageRevision, Tag
-from ckanext.dcat.processors import RDFSerializer
-from ckanext.kata import helpers
+from ckan.model import Package, Session, Group, PackageRevision
 import utils
 
 log = logging.getLogger(__name__)
 
-rdfserializer = RDFSerializer()
 
 
 class CKANServer(ResumptionOAIPMH):
