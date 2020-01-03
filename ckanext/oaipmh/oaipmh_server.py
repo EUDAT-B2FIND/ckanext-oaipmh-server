@@ -1,6 +1,5 @@
 '''OAI-PMH implementation for CKAN datasets and groups.
 '''
-# pylint: disable=E1101,E1103
 import json
 import logging
 
@@ -29,7 +28,7 @@ class CKANServer(ResumptionOAIPMH):
             repositoryName=config.get('ckan.site_title', 'repository'),
             baseURL=config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
             protocolVersion="2.0",
-            adminEmails=['etsin@csc.fi'],
+            adminEmails=['https://www.eudat.eu/support-request'],
             earliestDatestamp=utils.get_earliest_datestamp(),
             deletedRecord='no',
             granularity='YYYY-MM-DDThh:mm:ssZ',
@@ -42,7 +41,6 @@ class CKANServer(ResumptionOAIPMH):
         :param js: json string
         :return: list of items
         '''
-
         try:
             json_data = json.loads(js)
             json_titles = list()
@@ -64,6 +62,38 @@ class CKANServer(ResumptionOAIPMH):
         return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
                 dataset_xml, None)
 
+    def _get_DOI(self, package):
+        '''Returns DOI
+        '''
+        #Loops through extras -table: 
+        extras = {}
+        for i in package['extras']:
+            for key, value in i.iteritems():
+                key = i['key']
+                value = i['value']
+                extras.update( {key : value} )
+
+        DOI = extras['DOI'].split(':', 2)[2] if 'DOI' in extras else None
+        return DOI
+
+    def _filter_packages_by_DOI(self, packages):
+        '''Removes the packages with no 'DOI'
+        '''
+        packages_with_DOI = []
+        for package in packages: 
+            p = get_action('package_show')({}, {'id': package.id})
+            #Loops through extras -table: 
+            extras = {}
+            for i in p['extras']:
+                for key, value in i.iteritems():
+                    key = i['key']
+                    value = i['value']
+                    extras.update( {key : value} )
+
+            if 'DOI' in extras: #Accepts those packages that have 'DOI'
+                packages_with_DOI.append(package)
+                
+        return packages_with_DOI
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -73,12 +103,19 @@ class CKANServer(ResumptionOAIPMH):
         coverage = []
         temporal_begin = package.get('temporal_coverage_begin', '')
         temporal_end = package.get('temporal_coverage_end', '')
-
         geographic = package.get('geographic_coverage', '')
         if geographic:
             coverage.extend(geographic.split(','))
         if temporal_begin or temporal_end:
             coverage.append("%s/%s" % (temporal_begin, temporal_end))
+
+        #Loops through extras -table: 
+        extras = {}
+        for i in package['extras']:
+            for key, value in i.iteritems():
+                key = i['key']
+                value = i['value']
+                extras.update( {key : value} )
 
         identifier = [pid.get('id') for pid in package.get('pids', {}) if
                 pid.get('id', False) and pid.get('type', False) == 'primary']
@@ -87,7 +124,7 @@ class CKANServer(ResumptionOAIPMH):
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
         publ_events = filter(lambda x: x.get('type') in [u'published', u'collection', u'creation'], package.get('event', []))
-        publ_date = publ_events[0].get('when') if publ_events else package.get('metadata_created')
+        publ_date = package.get('metadata_created')
         publ_year = publ_date.split('-')[0]
 
         dates = filter(lambda x: x.get('type') in [u'collection', u'creation', u'extended', u'changed', u'published',
@@ -95,20 +132,21 @@ class CKANServer(ResumptionOAIPMH):
                        package.get('event', []))
         dates.append({'when': package.get('version', package.get('metadata_created', '')), 'type': 'published'})
 
-        meta = {'titles': json.loads(package.get('title', None) or package.get('name')),
-                'creators': helpers.get_authors(package),
-                'publisher': [agent['name'] for agent in helpers.get_contacts(package) + helpers.get_distributors(package) if 'name' in agent],
-                'contributors': helpers.get_contributors(package),
-                'funders': helpers.get_funders(package),
-                'identifier': identifier,
-                'identifier/@identifierType': 'URN',
-                'dates': dates,
-                'language': [l.strip() for l in package.get('language').split(",")] if package.get('language', None) else None,
-                'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
-                'subjects': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
-                'publicationYear': publ_year,
-                'rights': [package['license_title']] if package.get('license_title', None) else None,
-                'coverage': coverage if coverage else None, }
+        meta = {'Identifier': extras['DOI'].split(':', 2)[2] if 'DOI' in extras else None,
+            'identifierType': 'DOI',
+            'Creator': package['url'] if 'url' in package else None,
+            'creatorName': package['author'] if package['author'] else None,
+            'Publisher': extras['Publisher'] if 'Publisher' in extras else None,
+            'PublicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
+            'PublicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
+            'ResourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
+            'Language': extras['Language'] if 'Language' in extras else None,
+            'Title': package.get('title', None) or package.get('name'),
+            'Contributor': extras['Contact'] if 'Contact' in extras else None,
+            'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
+            'subjects': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
+            'rights': [package['license_title']] if package.get('license_title', None) else None,
+            'coverage': coverage if coverage else None, }
 
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
@@ -141,10 +179,7 @@ class CKANServer(ResumptionOAIPMH):
         pids.append(package.get('id'))
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
-        meta = {'title': self._get_json_content(package.get('title', None) or package.get('name')),
-                'creator': [author['name'] for author in helpers.get_authors(package) if 'name' in author],
-                'publisher': [agent['name'] for agent in helpers.get_distributors(package) + helpers.get_contacts(package) if 'name' in agent],
-                'contributor': [author['name'] for author in helpers.get_contributors(package) if 'name' in author],
+        meta = {#'title': self._get_json_content(package.get('title', None) or package.get('name')),
                 'identifier': pids,
                 'type': ['dataset'],
                 'language': [l.strip() for l in package.get('language').split(",")] if package.get('language', None) else None,
@@ -216,8 +251,11 @@ class CKANServer(ResumptionOAIPMH):
         '''Simple getRecord for a dataset.
         '''
         package = Package.get(identifier)
-        if not package:
-            raise IdDoesNotExistError("No dataset with id %s" % identifier)
+        p = get_action('package_show')({}, {'id': package.id})
+        DOI = self._get_DOI(p) 
+
+        if not package or not DOI:
+            raise IdDoesNotExistError("No dataset with id %s or dataset does not have DOI" % identifier)
         set_spec = []
         if package.owner_org:
             group = Group.get(package.owner_org)
@@ -239,7 +277,10 @@ class CKANServer(ResumptionOAIPMH):
         '''
         data = []
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
-        for package in packages:
+
+        packages_with_DOI = self._filter_packages_by_DOI(packages)
+
+        for package in packages_with_DOI:
             set_spec = []
             if setspc:
                 set_spec.append(setspc)
@@ -271,7 +312,10 @@ class CKANServer(ResumptionOAIPMH):
         '''
         data = []
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
-        for package in packages:
+
+        packages_with_DOI = self._filter_packages_by_DOI(packages)
+                
+        for package in packages_with_DOI: 
             set_spec = []
             if setspc:
                 set_spec.append(setspc)

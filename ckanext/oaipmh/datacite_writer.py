@@ -3,7 +3,7 @@ from lxml.etree import SubElement
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_DATACITE = 'http://datacite.org/schema/kernel-3'
+NS_DATACITE = 'http://schema.datacite.org/meta/kernel-3.1/'
 event_to_dt = {'collection': 'Collected',
                'creation': 'Created',
                'extended': 'Updated',
@@ -52,7 +52,7 @@ def datacite_writer(element, metadata):
     e_sv = SubElement(e_dc, nsoaidatacite('schemaVersion'))
     e_sv.text = '3.1'
     e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
-    e_ds.text = 'CSC.ETSIN'
+    e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
     e_r = SubElement(e_pl, nsdatacite('resource'), nsmap = {None: NS_DATACITE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-3/metadata.xsd' % NS_DATACITE)
@@ -70,7 +70,8 @@ def datacite_writer(element, metadata):
                 primary_lang = 'eng'
                 e_titles = SubElement(e_r, nsdatacite(k))
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
-                title_langs = v[0].keys()
+                e_title_primary.text = v[0]
+                """title_langs = v[0].keys()
                 if primary_lang in title_langs:
                     lang = _convert_language(primary_lang)
                     e_title_primary.set('lang', lang)
@@ -88,7 +89,7 @@ def datacite_writer(element, metadata):
                         e_title_translated = SubElement(e_titles, nsdatacite('title'))
                         e_title_translated.set('lang', _convert_language(l))
                         e_title_translated.set('titleType', 'TranslatedTitle')
-                        e_title_translated.text = v[0][l]
+                        e_title_translated.text = v[0][l]"""
                 continue
             if k == 'subjects':
                 e_subjects = SubElement(e_r, nsdatacite(k))
@@ -122,6 +123,7 @@ def datacite_writer(element, metadata):
                 continue
             e = SubElement(e_r, nsdatacite(k))
             e.text = v[0] if isinstance(v, list) else v
+
     for k, v in map.iteritems():
         if '/@' in k:
             element, attr = k.split('/@')
