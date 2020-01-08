@@ -145,7 +145,9 @@ class CKANServer(ResumptionOAIPMH):
             'Contributor': extras['Contact'] if 'Contact' in extras else None,
             'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
             'subjects': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
-            'rights': [package['license_title']] if package.get('license_title', None) else None,
+            'Rights': extras['Rights'] if 'Rights' in extras else None,
+            'Discipline': extras['Discipline'] if 'Discipline' in extras else None,
+            'OpenAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'coverage': coverage if coverage else None, }
 
         metadata = {}

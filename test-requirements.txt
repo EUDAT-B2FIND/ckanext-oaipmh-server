@@ -1,3 +1,0 @@
-nose>=1.0
-mock>=1.0.1
-testfixtures>=3.0.1
