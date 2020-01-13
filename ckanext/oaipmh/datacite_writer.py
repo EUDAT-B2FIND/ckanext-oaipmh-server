@@ -62,10 +62,6 @@ def datacite_writer(element, metadata):
         if v:
             if '/@' in k:
                 continue
-            if k == 'creators':
-                e_agent_parent = SubElement(e_r, nsdatacite('creators'))
-                _append_agent(e_agent_parent, 'creator', k, v)
-                continue
             if k == 'titles':
                 primary_lang = 'eng'
                 e_titles = SubElement(e_r, nsdatacite(k))
@@ -96,6 +92,12 @@ def datacite_writer(element, metadata):
                 for subject in v:
                     e_subject = SubElement(e_subjects, nsdatacite('subject'))
                     e_subject.text = subject
+                continue
+            if k == 'Creator':
+                e_creators = SubElement(e_r, nsdatacite(k))
+                for creatorName in v:
+                    e_creator = SubElement(e_creators, nsdatacite('creatorName'))
+                    e_creator.text = creatorName
                 continue
             if k == 'contributors':
                 e_agent_parent = e_r.find(".//{*}" + 'contributors')

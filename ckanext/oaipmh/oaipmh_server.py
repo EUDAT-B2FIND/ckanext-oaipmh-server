@@ -134,8 +134,7 @@ class CKANServer(ResumptionOAIPMH):
 
         meta = {'Identifier': extras['DOI'].split(':', 2)[2] if 'DOI' in extras else None,
             'identifierType': 'DOI',
-            'Creator': package['url'] if 'url' in package else None,
-            'creatorName': package['author'] if package['author'] else None,
+            'Creator': [author for author in package['author'].split(";")] if 'author' in package else None,
             'Publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'PublicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
             'PublicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
@@ -316,7 +315,7 @@ class CKANServer(ResumptionOAIPMH):
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
 
         packages_with_DOI = self._filter_packages_by_DOI(packages)
-                
+
         for package in packages_with_DOI: 
             set_spec = []
             if setspc:
@@ -334,6 +333,7 @@ class CKANServer(ResumptionOAIPMH):
             else:
                 data.append(self._record_for_dataset(package, set_spec))
         return data
+
 
     def listSets(self, cursor=None, batch_size=None):
         '''List all sets in this repository, where sets are groups.
