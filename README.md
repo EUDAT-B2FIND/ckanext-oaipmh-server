@@ -1,5 +1,5 @@
 OAI-PMH API for B2FIND CKAN. 
-This extends b2find CKAN to produce OAI-PMH metadata in DataCite format. 
+This extends b2find CKAN to produce OAI-PMH metadata in DataCite format. Ckanext-oaipmh-server is based on https://github.com/kata-csc/ckanext-oaipmh
 
 
 The list of supported verbs consists of:
