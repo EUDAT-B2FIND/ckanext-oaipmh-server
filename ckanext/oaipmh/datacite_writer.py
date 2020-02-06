@@ -44,7 +44,7 @@ def _append_agent(e_agent_parent, role, key, value, roletype=None):
 def datacite_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
-    e_dc = SubElement(element, nsoaidatacite('oai_datacite'),
+    e_dc = SubElement(element, nsoaidatacite('oai_openaire'),
                       nsmap = {None: NS_OAIDATACITE, 'xsi': NS_XSI})
     e_dc.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/oai/oai-1.0/oai.xsd' % NS_OAIDATACITE)
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
@@ -63,29 +63,9 @@ def datacite_writer(element, metadata):
             if '/@' in k:
                 continue
             if k == 'titles':
-                primary_lang = 'eng'
                 e_titles = SubElement(e_r, nsdatacite(k))
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
                 e_title_primary.text = v[0]
-                """title_langs = v[0].keys()
-                if primary_lang in title_langs:
-                    lang = _convert_language(primary_lang)
-                    e_title_primary.set('lang', lang)
-                    e_title_primary.text = v[0][primary_lang]
-                    for l in title_langs:
-                        if l != primary_lang:
-                            e_title_translated = SubElement(e_titles, nsdatacite('title'))
-                            e_title_translated.set('lang', _convert_language(l))
-                            e_title_translated.set('titleType', 'TranslatedTitle')
-                            e_title_translated.text = v[0][l]
-                else:
-                    e_title_primary.set('lang', _convert_language(title_langs[0]))
-                    e_title_primary.text = v[0][title_langs[0]]
-                    for l in title_langs[1:]:
-                        e_title_translated = SubElement(e_titles, nsdatacite('title'))
-                        e_title_translated.set('lang', _convert_language(l))
-                        e_title_translated.set('titleType', 'TranslatedTitle')
-                        e_title_translated.text = v[0][l]"""
                 continue
             if k == 'subjects':
                 e_subjects = SubElement(e_r, nsdatacite(k))
@@ -94,8 +74,8 @@ def datacite_writer(element, metadata):
                     e_subject.text = subject
                 continue
             if k == 'Creator':
-                e_creators = SubElement(e_r, nsdatacite(k))
                 for creatorName in v:
+                    e_creators = SubElement(e_r, nsdatacite(k))
                     e_creator = SubElement(e_creators, nsdatacite('creatorName'))
                     e_creator.text = creatorName
                 continue

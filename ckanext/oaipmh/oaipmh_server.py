@@ -2,7 +2,7 @@
 '''
 import json
 import logging
-
+import re
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
@@ -73,8 +73,12 @@ class CKANServer(ResumptionOAIPMH):
                 value = i['value']
                 extras.update( {key : value} )
 
-        DOI = extras['DOI'].split(':', 2)[2] if 'DOI' in extras else None
-        return DOI
+        if 'DOI' in extras:
+            DOI_stripped = re.search('10.*', extras['DOI']).group(0)
+        else:
+            DOI_stripped = None
+        
+        return DOI_stripped
 
     def _filter_packages_by_DOI(self, packages):
         '''Removes the packages with no 'DOI'
@@ -117,22 +121,16 @@ class CKANServer(ResumptionOAIPMH):
                 value = i['value']
                 extras.update( {key : value} )
 
-        identifier = [pid.get('id') for pid in package.get('pids', {}) if
-                pid.get('id', False) and pid.get('type', False) == 'primary']
         pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False) and pid.get('type', False) == 'primary']
         pids.append(package.get('id'))
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
-        publ_events = filter(lambda x: x.get('type') in [u'published', u'collection', u'creation'], package.get('event', []))
-        publ_date = package.get('metadata_created')
-        publ_year = publ_date.split('-')[0]
+        if 'DOI' in extras:
+            DOI_stripped = re.search('10.*', extras['DOI']).group(0)
+        else:
+            DOI_stripped = None
 
-        dates = filter(lambda x: x.get('type') in [u'collection', u'creation', u'extended', u'changed', u'published',
-                                                   u'sent', u'received', u'modified'],
-                       package.get('event', []))
-        dates.append({'when': package.get('version', package.get('metadata_created', '')), 'type': 'published'})
-
-        meta = {'Identifier': extras['DOI'].split(':', 2)[2] if 'DOI' in extras else None,
+        meta = {'Identifier': DOI_stripped,
             'identifierType': 'DOI',
             'Creator': [author for author in package['author'].split(";")] if 'author' in package else None,
             'Publisher': extras['Publisher'] if 'Publisher' in extras else None,
@@ -252,11 +250,15 @@ class CKANServer(ResumptionOAIPMH):
         '''Simple getRecord for a dataset.
         '''
         package = Package.get(identifier)
-        p = get_action('package_show')({}, {'id': package.id})
-        DOI = self._get_DOI(p) 
+        if not package:
+            raise IdDoesNotExistError("No dataset with id %s" % identifier)
 
-        if not package or not DOI:
-            raise IdDoesNotExistError("No dataset with id %s or dataset does not have DOI" % identifier)
+        p = get_action('package_show')({}, {'id': package.id})
+        DOI = self._get_DOI(p)
+
+        if not DOI:
+            raise IdDoesNotExistError("Dataset %s does not have DOI" % identifier)
+        
         set_spec = []
         if package.owner_org:
             group = Group.get(package.owner_org)
@@ -268,7 +270,7 @@ class CKANServer(ResumptionOAIPMH):
             set_spec = [package.name]
         if metadataPrefix == 'rdf':
             return self._record_for_dataset_dcat(package, set_spec)
-        if metadataPrefix == 'oai_datacite':
+        if metadataPrefix == 'oai_openaire':
             return self._record_for_dataset_datacite(package, set_spec)
         return self._record_for_dataset(package, set_spec)
 
@@ -300,7 +302,7 @@ class CKANServer(ResumptionOAIPMH):
         return [('oai_dc',
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
-                ('oai_datacite',
+                ('oai_openaire',
                  'http://schema.datacite.org/meta/kernel-3/metadata.xsd',
                  'http://datacite.org/schema/kernel-3'),
                 ('rdf',
@@ -328,7 +330,7 @@ class CKANServer(ResumptionOAIPMH):
                 set_spec = [package.name]
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
-            if metadataPrefix == 'oai_datacite':
+            if metadataPrefix == 'oai_openaire':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
