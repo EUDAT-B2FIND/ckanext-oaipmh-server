@@ -62,43 +62,6 @@ class CKANServer(ResumptionOAIPMH):
         return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
                 dataset_xml, None)
 
-    def _get_DOI(self, package):
-        '''Returns DOI
-        '''
-        #Loops through extras -table: 
-        extras = {}
-        for i in package['extras']:
-            for key, value in i.iteritems():
-                key = i['key']
-                value = i['value']
-                extras.update( {key : value} )
-
-        if 'DOI' in extras:
-            DOI_stripped = re.search('10.*', extras['DOI']).group(0)
-        else:
-            DOI_stripped = None
-        
-        return DOI_stripped
-
-    def _filter_packages_by_DOI(self, packages):
-        '''Removes the packages with no 'DOI'
-        '''
-        packages_with_DOI = []
-        for package in packages: 
-            p = get_action('package_show')({}, {'id': package.id})
-            #Loops through extras -table: 
-            extras = {}
-            for i in p['extras']:
-                for key, value in i.iteritems():
-                    key = i['key']
-                    value = i['value']
-                    extras.update( {key : value} )
-
-            if 'DOI' in extras: #Accepts those packages that have 'DOI'
-                packages_with_DOI.append(package)
-                
-        return packages_with_DOI
-
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
@@ -115,10 +78,10 @@ class CKANServer(ResumptionOAIPMH):
 
         #Loops through extras -table: 
         extras = {}
-        for i in package['extras']:
-            for key, value in i.iteritems():
-                key = i['key']
-                value = i['value']
+        for item in package['extras']:
+            for key, value in item.iteritems():
+                key = item['key']
+                value = item['value']
                 extras.update( {key : value} )
 
         pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False) and pid.get('type', False) == 'primary']
@@ -126,12 +89,14 @@ class CKANServer(ResumptionOAIPMH):
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
         if 'DOI' in extras:
-            DOI_stripped = re.search('10.*', extras['DOI']).group(0)
+            identifier = re.search('10.*', extras['DOI']).group(0)
+            identifierType = 'DOI'
         else:
-            DOI_stripped = None
+            identifier = package['id']
+            identifierType = 'PID'
 
-        meta = {'Identifier': DOI_stripped,
-            'identifierType': 'DOI',
+        meta = {'Identifier': identifier,
+            'identifierType': identifierType,
             'Creator': [author for author in package['author'].split(";")] if 'author' in package else None,
             'Publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'PublicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
@@ -253,12 +218,6 @@ class CKANServer(ResumptionOAIPMH):
         if not package:
             raise IdDoesNotExistError("No dataset with id %s" % identifier)
 
-        p = get_action('package_show')({}, {'id': package.id})
-        DOI = self._get_DOI(p)
-
-        if not DOI:
-            raise IdDoesNotExistError("Dataset %s does not have DOI" % identifier)
-        
         set_spec = []
         if package.owner_org:
             group = Group.get(package.owner_org)
@@ -281,9 +240,7 @@ class CKANServer(ResumptionOAIPMH):
         data = []
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
 
-        packages_with_DOI = self._filter_packages_by_DOI(packages)
-
-        for package in packages_with_DOI:
+        for package in packages:
             set_spec = []
             if setspc:
                 set_spec.append(setspc)
@@ -316,9 +273,7 @@ class CKANServer(ResumptionOAIPMH):
         data = []
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
 
-        packages_with_DOI = self._filter_packages_by_DOI(packages)
-
-        for package in packages_with_DOI: 
+        for package in packages: 
             set_spec = []
             if setspc:
                 set_spec.append(setspc)
