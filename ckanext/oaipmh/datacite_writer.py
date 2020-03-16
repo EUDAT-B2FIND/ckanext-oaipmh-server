@@ -1,9 +1,10 @@
 from iso639 import languages
 from lxml.etree import SubElement
+from lxml.etree import Element
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_DATACITE = 'http://schema.datacite.org/meta/kernel-3.1/'
+NS_DATACITE = 'http://schema.datacite.org/meta/kernel-4.1/'
 event_to_dt = {'collection': 'Collected',
                'creation': 'Created',
                'extended': 'Updated',
@@ -50,12 +51,18 @@ def datacite_writer(element, metadata):
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
     e_irq.text = 'false'
     e_sv = SubElement(e_dc, nsoaidatacite('schemaVersion'))
-    e_sv.text = '3.1'
+    e_sv.text = '4.1'
     e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
     e_r = SubElement(e_pl, nsdatacite('resource'), nsmap = {None: NS_DATACITE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-3/metadata.xsd' % NS_DATACITE)
+
+
+    id_state = None
+    idType_state = None
+    alt_id_state = None
+    alt_idType_state = None
 
     map = metadata.getMap()
     for k, v in map.iteritems():
@@ -67,23 +74,40 @@ def datacite_writer(element, metadata):
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
                 e_title_primary.text = v[0]
                 continue
+            if k == 'descriptions':
+                e_descs = SubElement(e_r, nsdatacite(k))
+                e_desc = SubElement(e_descs, nsdatacite('description'), descriptionType="Abstract")
+                e_desc.text = v[0]
+                continue
+            if k == 'resourceType':
+                e_resourceType = SubElement(e_r, nsdatacite(k), resourceTypeGeneral="Other")
+                e_resourceType.text = v[0]
+                continue
             if k == 'subjects':
                 e_subjects = SubElement(e_r, nsdatacite(k))
                 for subject in v:
                     e_subject = SubElement(e_subjects, nsdatacite('subject'))
                     e_subject.text = subject
                 continue
-            if k == 'Creator':
+            if k == 'creator':
+                e_creators = SubElement(e_r, nsdatacite('creators'))
                 for creatorName in v:
-                    e_creators = SubElement(e_r, nsdatacite(k))
-                    e_creator = SubElement(e_creators, nsdatacite('creatorName'))
-                    e_creator.text = creatorName
+                    e_creator = SubElement(e_creators, nsdatacite(k))
+                    e_creatorName = SubElement(e_creator, nsdatacite('creatorName'))
+                    e_creatorName.text = creatorName
                 continue
-            if k == 'contributors':
-                e_agent_parent = e_r.find(".//{*}" + 'contributors')
-                if not e_agent_parent:
-                    e_agent_parent = SubElement(e_r, nsdatacite('contributors'))
-                _append_agent(e_agent_parent, 'contributor', k, v, 'Other')
+            if k == 'contributor':
+                e_contributors = SubElement(e_r, nsdatacite('contributors'))
+                for contributorName in v:
+                    e_contributor = SubElement(e_contributors, nsdatacite(k), contributorType="Other")
+                    e_contributorName = SubElement(e_contributor, nsdatacite('contributorName'))
+                    e_contributorName.text = contributorName
+                continue
+            if k == 'rights':
+                for rights in v:
+                    e_rightslist = SubElement(e_r, nsdatacite('RightsList'))
+                    e_rights = SubElement(e_rightslist, nsdatacite(k), rightsURI="info:eu-repo/semantics/openAccess")
+                    e_rights.text = rights
                 continue
             if k == 'funders':
                 if v[0].get('organisation') or v[0].get('name'):
@@ -103,6 +127,28 @@ def datacite_writer(element, metadata):
                     e_date.text = event['when']
                     e_date.set('dateType', event_to_dt[event['type']])
                 continue
+            if k == 'identifier':
+                id_state = str(v[0])
+                e_ids = None
+                continue
+            if k == 'identifierType':
+                idType_state = str(v[0])
+                continue
+            if k == 'alternateIdentifier':
+                alt_id_state = str(v[0])
+                alt_ids = None
+                continue
+            if k == 'alternateIdentifierType':
+                alt_idType_state = str(v[0])
+                continue
+            if id_state is not None and idType_state is not None: 
+                if e_ids is None: 
+                    e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
+                    e_ids.text = id_state
+            if alt_id_state is not None and alt_idType_state is not None: 
+                if alt_ids is None:
+                    alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
+                    alt_ids.text = alt_id_state
             e = SubElement(e_r, nsdatacite(k))
             e.text = v[0] if isinstance(v, list) else v
 

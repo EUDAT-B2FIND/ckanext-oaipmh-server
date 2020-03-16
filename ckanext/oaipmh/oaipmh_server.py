@@ -61,12 +61,35 @@ class CKANServer(ResumptionOAIPMH):
         dataset_xml = rdfserializer.serialize_dataset(package, _format='xml')
         return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
                 dataset_xml, None)
+        
+    def _set_id(self, package, extras):
+        identifier = None
+        identifierType = None
+        alternateIdentifier = None
+        alternateIdentifierType = None
+        
+        identifier = package['url'] if 'url' in package else None
+        identifierType = 'URL'
+        alternateIdentifier = package['id']
+        alternateIdentifierType = 'Handle'
+        
+
+        if 'DOI' in extras:
+            identifier = re.search('10.*', extras['DOI']).group(0)
+            identifierType = 'DOI'
+        if 'URN' in extras:
+            identifier = extras['URN']
+            identifierType = 'URN'
+        if identifier is None:
+            identifier = package['id']
+            identifierType = 'Handle'
+        
+        return [identifier, identifierType, alternateIdentifier, alternateIdentifierType]
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
-
         coverage = []
         temporal_begin = package.get('temporal_coverage_begin', '')
         temporal_end = package.get('temporal_coverage_end', '')
@@ -80,36 +103,32 @@ class CKANServer(ResumptionOAIPMH):
         extras = {}
         for item in package['extras']:
             for key, value in item.iteritems():
-                key = item['key']
-                value = item['value']
+                key = item['key']   # extras table is constructed as key: language, value: English
+                value = item['value'] # instead of language : English, that is why it is looped here
                 extras.update( {key : value} )
+        
+        identifiers = self._set_id(package, extras)
 
-        pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False) and pid.get('type', False) == 'primary']
-        pids.append(package.get('id'))
-        pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
+        subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+        if 'Discipline' in extras:
+            subj.append(extras['Discipline'])
 
-        if 'DOI' in extras:
-            identifier = re.search('10.*', extras['DOI']).group(0)
-            identifierType = 'DOI'
-        else:
-            identifier = package['id']
-            identifierType = 'PID'
-
-        meta = {'Identifier': identifier,
-            'identifierType': identifierType,
-            'Creator': [author for author in package['author'].split(";")] if 'author' in package else None,
-            'Publisher': extras['Publisher'] if 'Publisher' in extras else None,
-            'PublicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
-            'PublicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
-            'ResourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
-            'Language': extras['Language'] if 'Language' in extras else None,
-            'Title': package.get('title', None) or package.get('name'),
-            'Contributor': extras['Contact'] if 'Contact' in extras else None,
-            'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
-            'subjects': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
-            'Rights': extras['Rights'] if 'Rights' in extras else None,
-            'Discipline': extras['Discipline'] if 'Discipline' in extras else None,
-            'OpenAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
+        meta = {'identifier': identifiers[0],
+            'identifierType': identifiers[1],
+            'alternateIdentifier': identifiers[2],
+            'alternateIdentifierType': identifiers[3],
+            'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'publisher': extras['Publisher'] if 'Publisher' in extras else None,
+            'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
+            'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
+            'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
+            'language': extras['Language'] if 'Language' in extras else None,
+            'titles': package.get('title', None) or package.get('name'),
+            'contributor': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
+            'subjects': subj,
+            'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
+            'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'coverage': coverage if coverage else None, }
 
         metadata = {}
