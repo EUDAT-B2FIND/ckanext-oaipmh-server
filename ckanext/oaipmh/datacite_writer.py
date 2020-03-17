@@ -59,9 +59,7 @@ def datacite_writer(element, metadata):
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
 
 
-    id_state = None
     idType_state = None
-    alt_id_state = None
     alt_idType_state = None
 
     map = metadata.getMap()
