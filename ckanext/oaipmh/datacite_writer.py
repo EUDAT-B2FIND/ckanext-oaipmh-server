@@ -56,7 +56,7 @@ def datacite_writer(element, metadata):
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
     e_r = SubElement(e_pl, nsdatacite('resource'), nsmap = {None: NS_DATACITE, 'xsi': NS_XSI})
-    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-3/metadata.xsd' % NS_DATACITE)
+    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
 
 
     id_state = None
@@ -128,27 +128,22 @@ def datacite_writer(element, metadata):
                     e_date.set('dateType', event_to_dt[event['type']])
                 continue
             if k == 'identifier':
-                id_state = str(v[0])
-                e_ids = None
+                if idType_state is not None: 
+                    e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
+                    e_ids.text = str(v[0])
+                continue
+            if k == 'alternateIdentifier':
+                if alt_idType_state is not None: 
+                    alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
+                    alt_ids.text = str(v[0])
                 continue
             if k == 'identifierType':
                 idType_state = str(v[0])
                 continue
-            if k == 'alternateIdentifier':
-                alt_id_state = str(v[0])
-                alt_ids = None
-                continue
             if k == 'alternateIdentifierType':
                 alt_idType_state = str(v[0])
                 continue
-            if id_state is not None and idType_state is not None: 
-                if e_ids is None: 
-                    e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
-                    e_ids.text = id_state
-            if alt_id_state is not None and alt_idType_state is not None: 
-                if alt_ids is None:
-                    alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
-                    alt_ids.text = alt_id_state
+
             e = SubElement(e_r, nsdatacite(k))
             e.text = v[0] if isinstance(v, list) else v
 

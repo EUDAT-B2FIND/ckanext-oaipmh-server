@@ -108,7 +108,6 @@ class CKANServer(ResumptionOAIPMH):
                 extras.update( {key : value} )
         
         identifiers = self._set_id(package, extras)
-
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if 'Discipline' in extras:
             subj.append(extras['Discipline'])
@@ -279,8 +278,8 @@ class CKANServer(ResumptionOAIPMH):
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
                 ('oai_openaire',
-                 'http://schema.datacite.org/meta/kernel-3/metadata.xsd',
-                 'http://datacite.org/schema/kernel-3'),
+                 'http://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
+                 'http://datacite.org/schema/kernel-4.1'),
                 ('rdf',
                  'http://www.openarchives.org/OAI/2.0/rdf.xsd',
                  'http://www.openarchives.org/OAI/2.0/rdf/')]
