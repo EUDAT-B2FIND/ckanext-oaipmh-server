@@ -250,7 +250,7 @@ class CKANServer(ResumptionOAIPMH):
             set_spec = [package.name]
         if metadataPrefix == 'rdf':
             return self._record_for_dataset_dcat(package, set_spec)
-        if metadataPrefix == 'oai_openaire':
+        if metadataPrefix == 'oai_datacite':
             return self._record_for_dataset_datacite(package, set_spec)
         return self._record_for_dataset(package, set_spec)
 
