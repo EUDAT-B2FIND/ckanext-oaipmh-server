@@ -280,7 +280,7 @@ class CKANServer(ResumptionOAIPMH):
         return [('oai_dc',
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
-                ('oai_openaire',
+                ('oai_datacite',
                  'http://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
                  'http://datacite.org/schema/kernel-4.1'),
                 ('rdf',
@@ -306,7 +306,7 @@ class CKANServer(ResumptionOAIPMH):
                 set_spec = [package.name]
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
-            if metadataPrefix == 'oai_openaire':
+            if metadataPrefix == 'oai_datacite':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
