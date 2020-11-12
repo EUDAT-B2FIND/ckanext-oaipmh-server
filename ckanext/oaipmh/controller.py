@@ -10,6 +10,7 @@ from ckan.lib.base import BaseController, render
 from oaipmh_server import CKANServer
 from rdftools import rdf_reader, dcat2rdf_writer
 from datacite_writer import datacite_writer
+from b2f_writer import b2f_writer
 
 log = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ class OAIPMHController(BaseController):
                 metadata_registry.registerReader('rdf', rdf_reader)
                 metadata_registry.registerWriter('rdf', dcat2rdf_writer)
                 metadata_registry.registerWriter('oai_datacite', datacite_writer)
+                metadata_registry.registerWriter('oai_b2f', b2f_writer)
                 serv = oaisrv.BatchingServer(client,
                                              metadata_registry=metadata_registry,
                                              resumption_batch_size=10)
