@@ -108,30 +108,33 @@ class CKANServer(ResumptionOAIPMH):
                 extras.update( {key : value} )
 
         identifiers = self._set_id(package, extras)
-        subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
-        if subj is not None and 'Discipline' in extras:
-            subj.append(extras['Discipline'])
+        keywords = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
 
-        meta = {'identifier': identifiers[0],
-            'identifierType': identifiers[1],
-            'alternateIdentifier': identifiers[2],
-            'alternateIdentifierType': identifiers[3],
+        meta = {
+            'DOI': extras['DOI'] if 'DOI' in extras else None,
+            'PID': extras['PID'] if 'PID' in extras else None,
+            'source': package.get('url', None),
+            # 'identifierType': identifiers[1],
+            # 'alternateIdentifier': identifiers[2],
+            # 'alternateIdentifierType': identifiers[3],
             'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
-            'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
+            # 'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
             'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
             'language': extras['Language'] if 'Language' in extras else None,
             'titles': package.get('title', None) or package.get('name'),
             'contributor': extras['Contributor'] if 'Contributor' in extras else None,
             'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
-            'subjects': subj,
+            'keywords': keywords,
+            'disciplines': extras['Discipline'] if 'Discipline' in extras else None,
             'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
-            #'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
-            'coverage': coverage if coverage else None,}
+            # 'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
+            # 'coverage': coverage if coverage else None,
+        }
 
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
