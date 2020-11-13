@@ -30,6 +30,11 @@ def b2f_writer(element, metadata):
                     e_com = SubElement(e_r, nsb2f('community'))
                     e_com.text = str(v[0])
                 continue
+            if k == 'version':
+                if v:
+                    e_version = SubElement(e_r, nsb2f('version'))
+                    e_version.text = str(v[0])
+                continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsb2f(k))
                 e_title_primary = SubElement(e_titles, nsb2f('title'))

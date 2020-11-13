@@ -114,6 +114,7 @@ class CKANServer(ResumptionOAIPMH):
             'community': package.get('group', None),
             'DOI': extras['DOI'] if 'DOI' in extras else None,
             'PID': extras['PID'] if 'PID' in extras else None,
+            'version': extras['Version'] if 'Version' in extras else None,
             'source': package.get('url', None),
             # 'identifierType': identifiers[1],
             # 'alternateIdentifier': identifiers[2],
