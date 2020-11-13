@@ -54,7 +54,7 @@ def b2f_writer(element, metadata):
                 e_disciplines = SubElement(e_r, nsb2f(k))
                 for discipline in v:
                     e_discipline = SubElement(e_disciplines, nsb2f('discipline'))
-                    e_discipline.text = keyword
+                    e_discipline.text = discipline
                 continue
             if k == 'creator':
                 e_creators = SubElement(e_r, nsb2f('creators'))
