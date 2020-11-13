@@ -25,6 +25,11 @@ def b2f_writer(element, metadata):
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
+            if k == 'community':
+                if v:
+                    e_com = SubElement(e_r, nsb2f('community'))
+                    e_com.text = str(v[0])
+                continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsb2f(k))
                 e_title_primary = SubElement(e_titles, nsb2f('title'))

@@ -111,6 +111,7 @@ class CKANServer(ResumptionOAIPMH):
         keywords = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
 
         meta = {
+            'community': package.get('group', None),
             'DOI': extras['DOI'] if 'DOI' in extras else None,
             'PID': extras['PID'] if 'PID' in extras else None,
             'source': package.get('url', None),
@@ -122,7 +123,6 @@ class CKANServer(ResumptionOAIPMH):
             'contact': extras['Contact'] if 'Contact' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
             'metadataAccess': extras['MetaDataAccess'] if 'MetaDataAccess' in extras else None,
-            # 'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
             'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
             'language': extras['Language'] if 'Language' in extras else None,
             'titles': package.get('title', None) or package.get('name'),
