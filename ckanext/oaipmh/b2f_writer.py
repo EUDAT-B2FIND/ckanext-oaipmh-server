@@ -22,14 +22,9 @@ def b2f_writer(element, metadata):
     e_r = SubElement(e_pl, nsb2f('resource'), nsmap={None: NS_B2F, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd' % NS_B2F)
 
-    # idType_state = None
-    # alt_idType_state = None
-
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
-            # if '/@' in k:
-            #     continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsb2f(k))
                 e_title_primary = SubElement(e_titles, nsb2f('title'))
@@ -117,17 +112,6 @@ def b2f_writer(element, metadata):
                     e_temporal_coverage = SubElement(e_r, nsb2f('temporalCoverage'))
                     e_temporal_coverage.text = str(v[0])
                 continue
-
-            # e = SubElement(e_r, nsb2f(k))
-            # e.text = v[0] if isinstance(v, list) else v
-
-    # for k, v in map.iteritems():
-    #     if '/@' in k:
-    #         element, attr = k.split('/@')
-    #         print(e_r.tag)
-    #         e = e_r.find(".//{*}" + element, )
-    #         if e is not None:
-    #             e.set(attr, v[0] if isinstance(v, list) else v)
 
 
 def nsb2f(name):
