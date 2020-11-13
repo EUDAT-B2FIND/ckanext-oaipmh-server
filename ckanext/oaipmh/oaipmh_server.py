@@ -90,16 +90,16 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
-        coverage = []
-        temporal_begin = package.get('temporal_coverage_begin', '')
-        temporal_end = package.get('temporal_coverage_end', '')
-        geographic = package.get('geographic_coverage', '')
-        if geographic:
-            coverage.extend(geographic.split(','))
-        if temporal_begin or temporal_end:
-            coverage.append("%s/%s" % (temporal_begin, temporal_end))
+        # coverage = []
+        # temporal_begin = package.get('temporal_coverage_begin', '')
+        # temporal_end = package.get('temporal_coverage_end', '')
+        # geographic = package.get('geographic_coverage', '')
+        # if geographic:
+        #     coverage.extend(geographic.split(','))
+        # if temporal_begin or temporal_end:
+        #     coverage.append("%s/%s" % (temporal_begin, temporal_end))
 
-        #Loops through extras -table:
+        # Loops through extras -table:
         extras = {}
         for item in package['extras']:
             for key, value in item.iteritems():
@@ -132,6 +132,8 @@ class CKANServer(ResumptionOAIPMH):
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
+            'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
+            'temporalCoverage': extras['TemporalCoverage'] if 'TemporalCoverage' in extras else None,
             # 'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
             # 'coverage': coverage if coverage else None,
         }

@@ -95,6 +95,16 @@ def b2f_writer(element, metadata):
                     e_language = SubElement(e_languages, nsb2f('language'))
                     e_language.text = language
                 continue
+            if k == 'spatialCoverage':
+                if v:
+                    e_spatial_coverage = SubElement(e_r, nsb2f('spatialCoverage'))
+                    e_spatial_coverage.text = str(v[0])
+                continue
+            if k == 'temporalCoverage':
+                if v:
+                    e_temporal_coverage = SubElement(e_r, nsb2f('temporalCoverage'))
+                    e_temporal_coverage.text = str(v[0])
+                continue
 
             # e = SubElement(e_r, nsb2f(k))
             # e.text = v[0] if isinstance(v, list) else v
