@@ -90,6 +90,11 @@ def b2f_writer(element, metadata):
                     e_pid = SubElement(e_r, nsb2f('source'))
                     e_pid.text = str(v[0])
                 continue
+            if k == 'publicationYear':
+                if v:
+                    e_year = SubElement(e_r, nsb2f('publicationYear'))
+                    e_year.text = str(v[0])
+                continue
             if k == 'language':
                 e_languages = SubElement(e_r, nsb2f('languages'))
                 for language in v:
