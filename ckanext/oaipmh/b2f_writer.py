@@ -3,7 +3,7 @@ from lxml.etree import Element
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_B2F = 'http://b2find.eudat.eu/schemas/'
+NS_B2F = 'http://b2find.eudat.eu/schema/b2f/2.0/'
 
 
 def b2f_writer(element, metadata):
@@ -20,7 +20,7 @@ def b2f_writer(element, metadata):
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
     e_r = SubElement(e_pl, nsb2f('resource'), nsmap={None: NS_B2F, 'xsi': NS_XSI})
-    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://b2find.eudat.eu/schemas/b2find_schema_2.0.xsd' % NS_B2F)
+    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd' % NS_B2F)
 
     # idType_state = None
     # alt_idType_state = None

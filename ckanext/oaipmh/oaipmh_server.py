@@ -347,8 +347,8 @@ class CKANServer(ResumptionOAIPMH):
                  'http://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
                  'http://datacite.org/schema/kernel-4.1'),
                 ('oai_b2f',
-                 'http://b2find.eudat.eu/schemas/b2find_schema_2.0.xsd',
-                 'http://b2find.eudat.eu/schemas'),
+                 'http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd',
+                 'http://b2find.eudat.eu/schema/b2f/2.0/'),
                 ('rdf',
                  'http://www.openarchives.org/OAI/2.0/rdf.xsd',
                  'http://www.openarchives.org/OAI/2.0/rdf/')]
