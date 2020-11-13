@@ -134,6 +134,11 @@ def b2f_writer(element, metadata):
                     e_year = SubElement(e_r, nsb2f('publicationYear'))
                     e_year.text = str(v[0])
                 continue
+            if k == 'openAccess':
+                if v:
+                    e_open_access = SubElement(e_r, nsb2f('openAccess'))
+                    e_open_access.text = str(v[0])
+                continue
             if k == 'language':
                 e_languages = SubElement(e_r, nsb2f('languages'))
                 for language in v:
