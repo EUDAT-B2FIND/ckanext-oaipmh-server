@@ -75,6 +75,12 @@ def b2f_writer(element, metadata):
                     e_contact = SubElement(e_contacts, nsb2f('contact'))
                     e_contact.text = contact
                 continue
+            if k == 'format':
+                e_formats = SubElement(e_r, nsb2f('formats'))
+                for format in v:
+                    e_format = SubElement(e_formats, nsb2f('format'))
+                    e_format.text = format
+                continue
             if k == 'rights':
                 e_rightslist = SubElement(e_r, nsb2f('RightsList'))
                 for rights in v:
