@@ -116,6 +116,7 @@ class CKANServer(ResumptionOAIPMH):
             'PID': extras['PID'] if 'PID' in extras else None,
             'version': extras['Version'] if 'Version' in extras else None,
             'source': package.get('url', None),
+            'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
             # 'identifierType': identifiers[1],
             # 'alternateIdentifier': identifiers[2],
             # 'alternateIdentifierType': identifiers[3],

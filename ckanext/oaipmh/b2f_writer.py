@@ -118,6 +118,12 @@ def b2f_writer(element, metadata):
                     e_pid = SubElement(e_r, nsb2f('source'))
                     e_pid.text = str(v[0])
                 continue
+            if k == 'relatedIdentifier':
+                e_rel_ids = SubElement(e_r, nsb2f('relatedIdentifiers'))
+                for url in v:
+                    e_rel_id = SubElement(e_rel_ids, nsb2f('relatedIdentifier'))
+                    e_rel_id.text = url
+                continue
             if k == 'metadataAccess':
                 if v:
                     e_maccess = SubElement(e_r, nsb2f('metadataAccess'))
