@@ -134,8 +134,7 @@ class CKANServer(ResumptionOAIPMH):
             'format': extras['Format'] if 'Format' in extras else None,
             'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
             'temporalCoverage': extras['TemporalCoverage'] if 'TemporalCoverage' in extras else None,
-            # 'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
-            # 'coverage': coverage if coverage else None,
+            'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
         }
 
         metadata = {}

@@ -95,6 +95,12 @@ def b2f_writer(element, metadata):
                     e_language = SubElement(e_languages, nsb2f('language'))
                     e_language.text = language
                 continue
+            if k == 'fundingReference':
+                e_funds = SubElement(e_r, nsb2f('fundingReferences'))
+                for fund in v:
+                    e_fund = SubElement(e_funds, nsb2f('fundingReference'))
+                    e_fund.text = fund
+                continue
             if k == 'spatialCoverage':
                 if v:
                     e_spatial_coverage = SubElement(e_r, nsb2f('spatialCoverage'))
