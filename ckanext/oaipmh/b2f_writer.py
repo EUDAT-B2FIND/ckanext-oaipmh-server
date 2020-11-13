@@ -89,6 +89,12 @@ def b2f_writer(element, metadata):
                     e_pid = SubElement(e_r, nsb2f('source'))
                     e_pid.text = str(v[0])
                 continue
+            if k == 'language':
+                e_languages = SubElement(e_r, nsb2f('languages'))
+                for language in v:
+                    e_language = SubElement(e_languages, nsb2f('language'))
+                    e_language.text = language
+                continue
 
             # e = SubElement(e_r, nsb2f(k))
             # e.text = v[0] if isinstance(v, list) else v
