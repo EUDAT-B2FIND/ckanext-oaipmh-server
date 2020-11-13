@@ -82,7 +82,7 @@ def b2f_writer(element, metadata):
                     e_format.text = format
                 continue
             if k == 'rights':
-                e_rightslist = SubElement(e_r, nsb2f('RightsList'))
+                e_rightslist = SubElement(e_r, nsb2f('rightsList'))
                 for rights in v:
                     e_rights = SubElement(e_rightslist, nsb2f(k))
                     e_rights.text = rights
