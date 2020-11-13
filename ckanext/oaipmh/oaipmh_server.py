@@ -61,18 +61,18 @@ class CKANServer(ResumptionOAIPMH):
         dataset_xml = rdfserializer.serialize_dataset(package, _format='xml')
         return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
                 dataset_xml, None)
-        
+
     def _set_id(self, package, extras):
         identifier = None
         identifierType = None
         alternateIdentifier = None
         alternateIdentifierType = None
-        
+
         identifier = package['url'] if 'url' in package else None
         identifierType = 'URL'
         alternateIdentifier = package['id']
         alternateIdentifierType = 'Handle'
-        
+
 
         if 'DOI' in extras:
             identifier = re.search('10.*', extras['DOI']).group(0)
@@ -83,8 +83,71 @@ class CKANServer(ResumptionOAIPMH):
         if identifier is None:
             identifier = package['id']
             identifierType = 'Handle'
-        
+
         return [identifier, identifierType, alternateIdentifier, alternateIdentifierType]
+
+    def _record_for_dataset_b2f(self, dataset, set_spec):
+        '''Show a tuple of a header and metadata for this dataset.
+        '''
+        package = get_action('package_show')({}, {'id': dataset.id})
+        # coverage = []
+        # temporal_begin = package.get('temporal_coverage_begin', '')
+        # temporal_end = package.get('temporal_coverage_end', '')
+        # geographic = package.get('geographic_coverage', '')
+        # if geographic:
+        #     coverage.extend(geographic.split(','))
+        # if temporal_begin or temporal_end:
+        #     coverage.append("%s/%s" % (temporal_begin, temporal_end))
+
+        # Loops through extras -table:
+        extras = {}
+        for item in package['extras']:
+            for key, value in item.iteritems():
+                key = item['key']   # extras table is constructed as key: language, value: English
+                value = item['value'] # instead of language : English, that is why it is looped here
+                extras.update( {key : value} )
+
+        identifiers = self._set_id(package, extras)
+        keywords = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+
+        meta = {
+            'community': package.get('group', None),
+            'DOI': extras['DOI'] if 'DOI' in extras else None,
+            'PID': extras['PID'] if 'PID' in extras else None,
+            'version': extras['Version'] if 'Version' in extras else None,
+            'source': package.get('url', None),
+            'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
+            'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'publisher': extras['Publisher'] if 'Publisher' in extras else None,
+            'contact': extras['Contact'] if 'Contact' in extras else None,
+            'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
+            'metadataAccess': extras['MetaDataAccess'] if 'MetaDataAccess' in extras else None,
+            'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
+            'language': extras['Language'] if 'Language' in extras else None,
+            'titles': package.get('title', None) or package.get('name'),
+            'contributor': extras['Contributor'] if 'Contributor' in extras else None,
+            'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
+            'keywords': keywords,
+            'disciplines': extras['Discipline'] if 'Discipline' in extras else None,
+            'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
+            'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
+            'size': extras['Size'] if 'Size' in extras else None,
+            'format': extras['Format'] if 'Format' in extras else None,
+            'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
+            'temporalCoverage': extras['TemporalCoverage'] if 'TemporalCoverage' in extras else None,
+            'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
+        }
+
+        metadata = {}
+        # Fixes the bug on having a large dataset being scrambled to individual
+        # letters
+        for key, value in meta.items():
+            if value and not isinstance(value, list):
+                metadata[str(key)] = [value]
+            else:
+                metadata[str(key)] = value
+        return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
+                common.Metadata('', metadata), None)
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -99,14 +162,14 @@ class CKANServer(ResumptionOAIPMH):
         if temporal_begin or temporal_end:
             coverage.append("%s/%s" % (temporal_begin, temporal_end))
 
-        #Loops through extras -table: 
+        #Loops through extras -table:
         extras = {}
         for item in package['extras']:
             for key, value in item.iteritems():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value'] # instead of language : English, that is why it is looped here
                 extras.update( {key : value} )
-        
+
         identifiers = self._set_id(package, extras)
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
@@ -123,12 +186,15 @@ class CKANServer(ResumptionOAIPMH):
             'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
             'language': extras['Language'] if 'Language' in extras else None,
             'titles': package.get('title', None) or package.get('name'),
-            'contributor': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'contributor': extras['Contributor'] if 'Contributor' in extras else None,
             'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
             'subjects': subj,
             'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
-            'coverage': coverage if coverage else None, }
+            'size': extras['Size'] if 'Size' in extras else None,
+            'format': extras['Format'] if 'Format' in extras else None,
+            #'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
+            'coverage': coverage if coverage else None,}
 
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
@@ -247,8 +313,10 @@ class CKANServer(ResumptionOAIPMH):
             set_spec = [package.name]
         if metadataPrefix == 'rdf':
             return self._record_for_dataset_dcat(package, set_spec)
-        if metadataPrefix == 'oai_openaire':
+        if metadataPrefix == 'oai_datacite':
             return self._record_for_dataset_datacite(package, set_spec)
+        if metadataPrefix == 'oai_b2f':
+            return self._record_for_dataset_b2f(package, set_spec)
         return self._record_for_dataset(package, set_spec)
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
@@ -277,9 +345,12 @@ class CKANServer(ResumptionOAIPMH):
         return [('oai_dc',
                  'http://www.openarchives.org/OAI/2.0/oai_dc.xsd',
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
-                ('oai_openaire',
+                ('oai_datacite',
                  'http://schema.datacite.org/meta/kernel-4.1/metadata.xsd',
                  'http://datacite.org/schema/kernel-4.1'),
+                ('oai_b2f',
+                 'http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd',
+                 'http://b2find.eudat.eu/schema/b2f/2.0/'),
                 ('rdf',
                  'http://www.openarchives.org/OAI/2.0/rdf.xsd',
                  'http://www.openarchives.org/OAI/2.0/rdf/')]
@@ -291,7 +362,7 @@ class CKANServer(ResumptionOAIPMH):
         data = []
         packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
 
-        for package in packages: 
+        for package in packages:
             set_spec = []
             if setspc:
                 set_spec.append(setspc)
@@ -303,8 +374,10 @@ class CKANServer(ResumptionOAIPMH):
                 set_spec = [package.name]
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
-            if metadataPrefix == 'oai_openaire':
+            if metadataPrefix == 'oai_datacite':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
+            if metadataPrefix == 'oai_b2f':
+                data.append(self._record_for_dataset_b2f(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
         return data

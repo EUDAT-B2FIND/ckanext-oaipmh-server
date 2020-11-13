@@ -45,7 +45,7 @@ def _append_agent(e_agent_parent, role, key, value, roletype=None):
 def datacite_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
-    e_dc = SubElement(element, nsoaidatacite('oai_openaire'),
+    e_dc = SubElement(element, nsoaidatacite('oai_datacite'),
                       nsmap = {None: NS_OAIDATACITE, 'xsi': NS_XSI})
     e_dc.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/oai/oai-1.0/oai.xsd' % NS_OAIDATACITE)
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
@@ -126,12 +126,12 @@ def datacite_writer(element, metadata):
                     e_date.set('dateType', event_to_dt[event['type']])
                 continue
             if k == 'identifier':
-                if idType_state is not None: 
+                if idType_state is not None:
                     e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
                     e_ids.text = str(v[0])
                 continue
             if k == 'alternateIdentifier':
-                if alt_idType_state is not None: 
+                if alt_idType_state is not None:
                     alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
                     alt_ids.text = str(v[0])
                 continue
@@ -142,8 +142,8 @@ def datacite_writer(element, metadata):
                 alt_idType_state = str(v[0])
                 continue
 
-            e = SubElement(e_r, nsdatacite(k))
-            e.text = v[0] if isinstance(v, list) else v
+            # e = SubElement(e_r, nsdatacite(k))
+            # e.text = v[0] if isinstance(v, list) else v
 
     for k, v in map.iteritems():
         if '/@' in k:
