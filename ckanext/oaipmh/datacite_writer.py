@@ -142,8 +142,8 @@ def datacite_writer(element, metadata):
                 alt_idType_state = str(v[0])
                 continue
 
-            e = SubElement(e_r, nsdatacite(k))
-            e.text = v[0] if isinstance(v, list) else v
+            # e = SubElement(e_r, nsdatacite(k))
+            # e.text = v[0] if isinstance(v, list) else v
 
     for k, v in map.iteritems():
         if '/@' in k:
