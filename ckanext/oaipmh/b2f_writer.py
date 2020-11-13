@@ -108,6 +108,11 @@ def b2f_writer(element, metadata):
                     e_pid = SubElement(e_r, nsb2f('source'))
                     e_pid.text = str(v[0])
                 continue
+            if k == 'metadataAccess':
+                if v:
+                    e_maccess = SubElement(e_r, nsb2f('metadataAccess'))
+                    e_maccess.text = str(v[0])
+                continue
             if k == 'publicationYear':
                 if v:
                     e_year = SubElement(e_r, nsb2f('publicationYear'))

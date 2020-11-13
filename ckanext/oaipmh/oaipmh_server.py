@@ -121,6 +121,7 @@ class CKANServer(ResumptionOAIPMH):
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'contact': extras['Contact'] if 'Contact' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
+            'metadataAccess': extras['MetaDataAccess'] if 'MetaDataAccess' in extras else None,
             # 'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
             'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
             'language': extras['Language'] if 'Language' in extras else None,
