@@ -119,6 +119,7 @@ class CKANServer(ResumptionOAIPMH):
             # 'alternateIdentifierType': identifiers[3],
             'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
+            'contact': extras['Contact'] if 'Contact' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
             # 'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
             'resourceType': extras['ResourceType'] if 'ResourceType' in extras else None,
