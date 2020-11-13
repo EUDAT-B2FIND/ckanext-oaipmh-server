@@ -63,6 +63,12 @@ def b2f_writer(element, metadata):
                     e_contributor = SubElement(e_contributors, nsb2f('contributor'))
                     e_contributor.text = contributorName
                 continue
+            if k == 'publisher':
+                e_publishers = SubElement(e_r, nsb2f('publishers'))
+                for publisher in v:
+                    e_publisher = SubElement(e_publishers, nsb2f('publisher'))
+                    e_publisher.text = publisher
+                continue
             if k == 'contact':
                 e_contacts = SubElement(e_r, nsb2f('contacts'))
                 for contact in v:
