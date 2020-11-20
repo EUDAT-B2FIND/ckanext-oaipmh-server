@@ -179,7 +179,7 @@ class CKANServer(ResumptionOAIPMH):
             'identifierType': identifiers[1],
             'alternateIdentifier': identifiers[2],
             'alternateIdentifierType': identifiers[3],
-            'creator': [author for author in package.get('author', '').split(";")] if 'author' in package else None,
+            'creator': [author for author in package.get('author', '').split(";")] if package.get('author', None) else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
             'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
