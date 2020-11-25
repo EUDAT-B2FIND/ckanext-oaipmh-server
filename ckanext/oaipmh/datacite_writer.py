@@ -104,7 +104,7 @@ def datacite_writer(element, metadata):
                 continue
             if k == 'publisher':
                 e_publisher = SubElement(e_r, nsdatacite('publisher'))
-                e_publisher.text = str(v[0])
+                e_publisher.text = v[0]
                 continue
             if k == 'language':
                 e_language = SubElement(e_r, nsdatacite('language'))
