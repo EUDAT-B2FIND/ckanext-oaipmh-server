@@ -28,7 +28,7 @@ def b2f_writer(element, metadata):
             if k == 'community':
                 if v:
                     e_com = SubElement(e_r, nsb2f('community'))
-                    e_com.text = str(v[0])
+                    e_com.text = v[0]
                 continue
             if k == 'version':
                 if v:
@@ -106,17 +106,17 @@ def b2f_writer(element, metadata):
             if k == 'DOI':
                 if v:
                     e_doi = SubElement(e_r, nsb2f('DOI'))
-                    e_doi.text = str(v[0])
+                    e_doi.text = v[0]
                 continue
             if k == 'PID':
                 if v:
                     e_pid = SubElement(e_r, nsb2f('PID'))
-                    e_pid.text = str(v[0])
+                    e_pid.text = v[0]
                 continue
             if k == 'source':
                 if v:
                     e_pid = SubElement(e_r, nsb2f('source'))
-                    e_pid.text = str(v[0])
+                    e_pid.text = v[0]
                 continue
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nsb2f('relatedIdentifiers'))
@@ -127,7 +127,7 @@ def b2f_writer(element, metadata):
             if k == 'metadataAccess':
                 if v:
                     e_maccess = SubElement(e_r, nsb2f('metadataAccess'))
-                    e_maccess.text = str(v[0])
+                    e_maccess.text = v[0]
                 continue
             if k == 'publicationYear':
                 if v:
@@ -154,12 +154,12 @@ def b2f_writer(element, metadata):
             if k == 'spatialCoverage':
                 if v:
                     e_spatial_coverage = SubElement(e_r, nsb2f('spatialCoverage'))
-                    e_spatial_coverage.text = str(v[0])
+                    e_spatial_coverage.text = v[0]
                 continue
             if k == 'temporalCoverage':
                 if v:
                     e_temporal_coverage = SubElement(e_r, nsb2f('temporalCoverage'))
-                    e_temporal_coverage.text = str(v[0])
+                    e_temporal_coverage.text = v[0]
                 continue
 
 

@@ -4,7 +4,7 @@ from lxml.etree import Element
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_DATACITE = 'http://schema.datacite.org/meta/kernel-4.1/'
+NS_DATACITE = 'http://datacite.org/schema/kernel-4'
 event_to_dt = {'collection': 'Collected',
                'creation': 'Created',
                'extended': 'Updated',
@@ -51,22 +51,23 @@ def datacite_writer(element, metadata):
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
     e_irq.text = 'false'
     e_sv = SubElement(e_dc, nsoaidatacite('schemaVersion'))
-    e_sv.text = '4.1'
+    e_sv.text = '4.3'
     e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
-    e_r = SubElement(e_pl, nsdatacite('resource'), nsmap = {None: NS_DATACITE, 'xsi': NS_XSI})
-    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
+    e_r = SubElement(e_pl, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
+    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.3/metadata.xsd' % NS_DATACITE)
 
-
-    idType_state = None
-    alt_idType_state = None
+    alt_id_exists = False
 
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
-            #if '/@' in k:
-                #continue
+            if k == 'version':
+                if v:
+                    e_version = SubElement(e_r, nsdatacite('version'))
+                    e_version.text = str(v[0])
+                continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsdatacite(k))
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
@@ -102,66 +103,78 @@ def datacite_writer(element, metadata):
                     e_contributorName.text = contributorName
                 continue
             if k == 'publisher':
-                e_publishers = SubElement(e_r, nsdatacite('publishers'))
-                for publisher in v:
-                    e_publisher = SubElement(e_publishers, nsdatacite(k))
-                    e_publisher.text = publisher
+                e_publisher = SubElement(e_r, nsdatacite('publisher'))
+                e_publisher.text = v[0]
+                continue
+            if k == 'language':
+                e_language = SubElement(e_r, nsdatacite('language'))
+                e_language.text = v[0]
+                continue
+            if k == 'format':
+                e_formats = SubElement(e_r, nsdatacite('formats'))
+                for format in v:
+                    e_format = SubElement(e_formats, nsdatacite(k))
+                    e_format.text = format
+                continue
+            if k == 'size':
+                e_sizes = SubElement(e_r, nsdatacite('sizes'))
+                for size in v:
+                    e_size = SubElement(e_sizes, nsdatacite(k))
+                    e_size.text = size
                 continue
             if k == 'publicationYear':
                 e_publicationYear = SubElement(e_r, nsdatacite('publicationYear'))
                 e_publicationYear.text = str(v[0])
                 continue
+            if k == 'geoLocation':
+                e_geoLocations = SubElement(e_r, nsdatacite('geoLocations'))
+                e_geoLocation = SubElement(e_geoLocations, nsdatacite('geoLocation'))
+                e_geoLocationPlace = SubElement(e_geoLocation, nsdatacite('geoLocationPlace'))
+                e_geoLocationPlace.text = v[0]
+                continue
             if k == 'rights':
+                e_rightslist = SubElement(e_r, nsdatacite('rightsList'))
                 for rights in v:
-                    e_rightslist = SubElement(e_r, nsdatacite('RightsList'))
-                    e_rights = SubElement(e_rightslist, nsdatacite(k), rightsURI="info:eu-repo/semantics/openAccess")
+                    e_rights = SubElement(e_rightslist, nsdatacite(k))  # rightsURI="info:eu-repo/semantics/openAccess")
                     e_rights.text = rights
                 continue
             if k == 'fundingReference':
-                if v[0].get('organisation') or v[0].get('name'):
-                    e_agent_parent = e_r.find(".//{*}" + 'contributors')
-                    if not e_agent_parent:
-                        e_agent_parent = SubElement(e_r, nsdatacite('contributors'))
-                    for agent in v:
-                        e_agent = SubElement(e_agent_parent, nsdatacite('contributor'))
-                        e_agent.set('contributorType', 'Funder')
-                        e_agent_name = SubElement(e_agent, nsdatacite('contributorName'))
-                        e_agent_name.text = agent.get('organisation') or agent.get('name')
+                e_funds = SubElement(e_r, nsdatacite('fundingReferences'))
+                for fund in v:
+                    e_fund = SubElement(e_funds, nsdatacite('fundingReference'))
+                    e_fund_name = SubElement(e_fund, nsdatacite('funderName'))
+                    e_fund_name.text = fund
                 continue
             if k == 'dates':
                 e_dates = SubElement(e_r, nsdatacite(k))
                 for event in v:
                     e_date = SubElement(e_dates, nsdatacite('date'))
-                    e_date.text = event['when']
-                    e_date.set('dateType', event_to_dt[event['type']])
+                    e_date.text = event
+                    e_date.set('dateType', 'Collected')
+                    # e_date.set('dateType', event_to_dt[event['type']])
                 continue
-            if k == 'identifier':
-                if idType_state is not None:
-                    e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
-                    e_ids.text = str(v[0])
+            if k == 'DOI':
+                e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
+                e_ids.text = v[0]
                 continue
-            if k == 'alternateIdentifier':
-                if alt_idType_state is not None:
-                    alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
-                    alt_ids.text = str(v[0])
+            if k == 'PID' and not alt_id_exists:
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
+                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
+                alt_id.text = v[0]
+                alt_id_exists = True
                 continue
-            if k == 'identifierType':
-                idType_state = str(v[0])
+            if k == 'source' and not alt_id_exists:
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
+                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
+                alt_id.text = v[0]
+                alt_id_exists = True
                 continue
-            if k == 'alternateIdentifierType':
-                alt_idType_state = str(v[0])
+            if k == 'relatedIdentifier':
+                e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
+                for url in v:
+                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType='URL')
+                    e_rel_id.text = url
                 continue
-
-            # e = SubElement(e_r, nsdatacite(k))
-            # e.text = v[0] if isinstance(v, list) else v
-
-    #for k, v in map.iteritems():
-        #if '/@' in k:
-            #element, attr = k.split('/@')
-            #print(e_r.tag)
-            #e = e_r.find(".//{*}" + element, )
-            #if e is not None:
-                #e.set(attr, v[0] if isinstance(v, list) else v)
 
 
 def nsdatacite(name):
