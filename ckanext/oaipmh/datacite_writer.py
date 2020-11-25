@@ -65,8 +65,8 @@ def datacite_writer(element, metadata):
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
-            if '/@' in k:
-                continue
+            #if '/@' in k:
+                #continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsdatacite(k))
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
@@ -101,13 +101,23 @@ def datacite_writer(element, metadata):
                     e_contributorName = SubElement(e_contributor, nsdatacite('contributorName'))
                     e_contributorName.text = contributorName
                 continue
+            if k == 'publisher':
+                e_publishers = SubElement(e_r, nsdatacite('publishers'))
+                for publisher in v:
+                    e_publisher = SubElement(e_publishers, nsdatacite(k))
+                    e_publisher.text = publisher
+                continue
+            if k == 'publicationYear':
+                e_publicationYear = SubElement(e_r, nsdatacite('publicationYear'))
+                e_publicationYear.text = str(v[0])
+                continue
             if k == 'rights':
                 for rights in v:
                     e_rightslist = SubElement(e_r, nsdatacite('RightsList'))
                     e_rights = SubElement(e_rightslist, nsdatacite(k), rightsURI="info:eu-repo/semantics/openAccess")
                     e_rights.text = rights
                 continue
-            if k == 'funders':
+            if k == 'fundingReference':
                 if v[0].get('organisation') or v[0].get('name'):
                     e_agent_parent = e_r.find(".//{*}" + 'contributors')
                     if not e_agent_parent:
@@ -145,13 +155,13 @@ def datacite_writer(element, metadata):
             # e = SubElement(e_r, nsdatacite(k))
             # e.text = v[0] if isinstance(v, list) else v
 
-    for k, v in map.iteritems():
-        if '/@' in k:
-            element, attr = k.split('/@')
-            print(e_r.tag)
-            e = e_r.find(".//{*}" + element, )
-            if e is not None:
-                e.set(attr, v[0] if isinstance(v, list) else v)
+    #for k, v in map.iteritems():
+        #if '/@' in k:
+            #element, attr = k.split('/@')
+            #print(e_r.tag)
+            #e = e_r.find(".//{*}" + element, )
+            #if e is not None:
+                #e.set(attr, v[0] if isinstance(v, list) else v)
 
 
 def nsdatacite(name):

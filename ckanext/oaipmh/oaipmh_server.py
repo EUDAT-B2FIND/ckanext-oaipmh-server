@@ -193,7 +193,7 @@ class CKANServer(ResumptionOAIPMH):
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
-            #'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
+            'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
             'coverage': coverage if coverage else None,}
 
         metadata = {}
