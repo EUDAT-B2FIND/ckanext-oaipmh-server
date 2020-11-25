@@ -102,10 +102,24 @@ def datacite_writer(element, metadata):
                     e_contributorName.text = contributorName
                 continue
             if k == 'publisher':
-                e_publishers = SubElement(e_r, nsdatacite('publishers'))
-                for publisher in v:
-                    e_publisher = SubElement(e_publishers, nsdatacite(k))
-                    e_publisher.text = publisher
+                e_publisher = SubElement(e_r, nsdatacite('publisher'))
+                e_publisher.text = str(v[0])
+                continue
+            if k == 'language':
+                e_language = SubElement(e_r, nsdatacite('language'))
+                e_language.text = str(v[0])
+                continue
+            if k == 'format':
+                e_formats = SubElement(e_r, nsdatacite('formats'))
+                for format in v:
+                    e_format = SubElement(e_formats, nsdatacite(k))
+                    e_format.text = format
+                continue
+            if k == 'size':
+                e_sizes = SubElement(e_r, nsdatacite('sizes'))
+                for size in v:
+                    e_size = SubElement(e_sizes, nsdatacite(k))
+                    e_size.text = size
                 continue
             if k == 'publicationYear':
                 e_publicationYear = SubElement(e_r, nsdatacite('publicationYear'))
