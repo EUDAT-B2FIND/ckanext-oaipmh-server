@@ -194,7 +194,7 @@ class CKANServer(ResumptionOAIPMH):
             'contributor': extras['Contributor'] if 'Contributor' in extras else None,
             'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
             'subjects': subj,
-            'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
+            'rights': extras['Rights'] if 'Rights' in extras else None,
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,

@@ -133,7 +133,7 @@ def datacite_writer(element, metadata):
             if k == 'rights':
                 for rights in v:
                     e_rightslist = SubElement(e_r, nsdatacite('RightsList'))
-                    e_rights = SubElement(e_rightslist, nsdatacite(k), rightsURI="info:eu-repo/semantics/openAccess")
+                    e_rights = SubElement(e_rightslist, nsdatacite(k))  # rightsURI="info:eu-repo/semantics/openAccess")
                     e_rights.text = rights
                 continue
             if k == 'fundingReference':
