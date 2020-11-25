@@ -153,23 +153,22 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
-        # coverage = []
-        temporal_begin = package.get('temporal_coverage_begin', '')
-        temporal_end = package.get('temporal_coverage_end', '')
-        # geographic = package.get('geographic_coverage', '')
-        # if geographic:
-        #     coverage.extend(geographic.split(','))
-        dates = []
-        if temporal_begin or temporal_end:
-            dates.append("%s/%s" % (temporal_begin, temporal_end))
-
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
             for key, value in item.iteritems():
                 key = item['key']   # extras table is constructed as key: language, value: English
-                value = item['value'] # instead of language : English, that is why it is looped here
-                extras.update( {key : value} )
+                value = item['value']  # instead of language : English, that is why it is looped here
+                extras.update({key: value})
+
+        temporal_begin = extras.get('TemporalCoverage:BeginDate', '')
+        temporal_end = extras.get('TemporalCoverage:EndDate', '')
+        dates = []
+        if temporal_begin or temporal_end:
+            dates.append("%s/%s" % (temporal_begin, temporal_end))
+        dates = []
+        if temporal_begin or temporal_end:
+            dates.append("%s/%s" % (temporal_begin, temporal_end))
 
         identifiers = self._set_id(package, extras)
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
