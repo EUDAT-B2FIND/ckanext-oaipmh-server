@@ -171,7 +171,7 @@ class CKANServer(ResumptionOAIPMH):
         if temporal_begin or temporal_end:
             dates.append("%s/%s" % (temporal_begin, temporal_end))
 
-        identifiers = self._set_id(package, extras)
+        # identifiers = self._set_id(package, extras)
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
             subj.append(extras['Discipline'])
@@ -179,10 +179,11 @@ class CKANServer(ResumptionOAIPMH):
         authors = [author for author in package.get('author', '').split(";")]
 
         meta = {
-            'identifier': identifiers[0],
-            'identifierType': identifiers[1],
-            'alternateIdentifier': identifiers[2],
-            'alternateIdentifierType': identifiers[3],
+            'DOI': extras['DOI'] if 'DOI' in extras else None,
+            'PID': extras['PID'] if 'PID' in extras else None,
+            'version': extras['Version'] if 'Version' in extras else None,
+            'source': package.get('url', None),
+            'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
             'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,

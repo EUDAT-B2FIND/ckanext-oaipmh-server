@@ -55,18 +55,17 @@ def datacite_writer(element, metadata):
     e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
-    e_r = SubElement(e_pl, nsdatacite('resource'), nsmap = {None: NS_DATACITE, 'xsi': NS_XSI})
+    e_r = SubElement(e_pl, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
-
-
-    idType_state = None
-    alt_idType_state = None
 
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
-            #if '/@' in k:
-                #continue
+            if k == 'version':
+                if v:
+                    e_version = SubElement(e_r, nsdatacite('version'))
+                    e_version.text = str(v[0])
+                continue
             if k == 'titles':
                 e_titles = SubElement(e_r, nsdatacite(k))
                 e_title_primary = SubElement(e_titles, nsdatacite('title'))
@@ -152,33 +151,24 @@ def datacite_writer(element, metadata):
                     e_date.set('dateType', 'Collected')
                     # e_date.set('dateType', event_to_dt[event['type']])
                 continue
-            if k == 'identifier':
-                if idType_state is not None:
-                    e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType=idType_state)
-                    e_ids.text = str(v[0])
+            if k == 'DOI':
+                e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
+                e_ids.text = str(v[0])
                 continue
-            if k == 'alternateIdentifier':
-                if alt_idType_state is not None:
-                    alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType=alt_idType_state)
-                    alt_ids.text = str(v[0])
+            if k == 'PID':
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
+                alt_ids.text = str(v[0])
                 continue
-            if k == 'identifierType':
-                idType_state = str(v[0])
+            if k == 'source':
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
+                alt_ids.text = str(v[0])
                 continue
-            if k == 'alternateIdentifierType':
-                alt_idType_state = str(v[0])
+            if k == 'relatedIdentifier':
+                e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
+                for url in v:
+                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType='URL')
+                    e_rel_id.text = url
                 continue
-
-            # e = SubElement(e_r, nsdatacite(k))
-            # e.text = v[0] if isinstance(v, list) else v
-
-    #for k, v in map.iteritems():
-        #if '/@' in k:
-            #element, attr = k.split('/@')
-            #print(e_r.tag)
-            #e = e_r.find(".//{*}" + element, )
-            #if e is not None:
-                #e.set(attr, v[0] if isinstance(v, list) else v)
 
 
 def nsdatacite(name):
