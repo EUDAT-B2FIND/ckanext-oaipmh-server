@@ -125,6 +125,12 @@ def datacite_writer(element, metadata):
                 e_publicationYear = SubElement(e_r, nsdatacite('publicationYear'))
                 e_publicationYear.text = str(v[0])
                 continue
+            if k == 'geoLocation':
+                e_geoLocations = SubElement(e_r, nsdatacite('geoLocations'))
+                e_geoLocation = SubElement(e_geoLocations, nsdatacite('geoLocation'))
+                e_geoLocationPlace = SubElement(e_geoLocation, nsdatacite('geoLocationPlace'))
+                e_geoLocationPlace.text = str(v[0])
+                continue
             if k == 'rights':
                 for rights in v:
                     e_rightslist = SubElement(e_r, nsdatacite('RightsList'))

@@ -153,12 +153,12 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
-        coverage = []
+        # coverage = []
         temporal_begin = package.get('temporal_coverage_begin', '')
         temporal_end = package.get('temporal_coverage_end', '')
-        geographic = package.get('geographic_coverage', '')
-        if geographic:
-            coverage.extend(geographic.split(','))
+        # geographic = package.get('geographic_coverage', '')
+        # if geographic:
+        #     coverage.extend(geographic.split(','))
         dates = []
         if temporal_begin or temporal_end:
             dates.append("%s/%s" % (temporal_begin, temporal_end))
@@ -198,6 +198,7 @@ class CKANServer(ResumptionOAIPMH):
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
             # 'coverage': coverage if coverage else None,
             'dates': dates if dates else None,
+            'geoLocation': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
         }
 
         metadata = {}
