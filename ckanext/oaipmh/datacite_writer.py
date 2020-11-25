@@ -131,8 +131,8 @@ def datacite_writer(element, metadata):
                 e_geoLocationPlace.text = str(v[0])
                 continue
             if k == 'rights':
+                e_rightslist = SubElement(e_r, nsdatacite('rightsList'))
                 for rights in v:
-                    e_rightslist = SubElement(e_r, nsdatacite('RightsList'))
                     e_rights = SubElement(e_rightslist, nsdatacite(k))  # rightsURI="info:eu-repo/semantics/openAccess")
                     e_rights.text = rights
                 continue

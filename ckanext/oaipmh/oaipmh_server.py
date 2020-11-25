@@ -166,10 +166,7 @@ class CKANServer(ResumptionOAIPMH):
         temporal_end = extras.get('TemporalCoverage:EndDate', '')
         dates = []
         if temporal_begin or temporal_end:
-            dates.append("%s/%s" % (temporal_begin, temporal_end))
-        dates = []
-        if temporal_begin or temporal_end:
-            dates.append("%s/%s" % (temporal_begin, temporal_end))
+            dates.append("%s/%s" % (temporal_begin[0], temporal_end[0]))
 
         # identifiers = self._set_id(package, extras)
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
