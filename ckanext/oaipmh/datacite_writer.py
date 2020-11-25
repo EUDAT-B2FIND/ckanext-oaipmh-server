@@ -58,6 +58,8 @@ def datacite_writer(element, metadata):
     e_r = SubElement(e_pl, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
 
+    alt_id_exists = False
+
     map = metadata.getMap()
     for k, v in map.iteritems():
         if v:
@@ -155,13 +157,17 @@ def datacite_writer(element, metadata):
                 e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
                 e_ids.text = str(v[0])
                 continue
-            if k == 'PID':
-                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
-                alt_ids.text = str(v[0])
+            if k == 'PID' and not alt_id_exists:
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
+                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
+                alt_id.text = str(v[0])
+                alt_id_exists = True
                 continue
-            if k == 'source':
-                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
-                alt_ids.text = str(v[0])
+            if k == 'source' and not alt_id_exists:
+                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
+                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
+                alt_id.text = str(v[0])
+                alt_id_exists = True
                 continue
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
