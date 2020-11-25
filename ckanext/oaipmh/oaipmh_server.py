@@ -159,7 +159,8 @@ class CKANServer(ResumptionOAIPMH):
             for key, value in item.iteritems():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
-                extras.update({key: value})
+                values = value.split(";")
+                extras.update({key: values})
 
         temporal_begin = extras.get('TemporalCoverage:BeginDate', '')
         temporal_end = extras.get('TemporalCoverage:EndDate', '')
@@ -175,12 +176,14 @@ class CKANServer(ResumptionOAIPMH):
         if subj is not None and 'Discipline' in extras:
             subj.append(extras['Discipline'])
 
+        authors = [author for author in package.get('author', '').split(";")]
+
         meta = {
             'identifier': identifiers[0],
             'identifierType': identifiers[1],
             'alternateIdentifier': identifiers[2],
             'alternateIdentifierType': identifiers[3],
-            'creator': [author for author in package.get('author', '').split(";")] if package.get('author', None) else None,
+            'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
             'publicationTimestamp': extras['PublicationTimestamp'] if 'PublicationTimestamp' in extras else None,
