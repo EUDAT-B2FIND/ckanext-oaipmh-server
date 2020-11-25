@@ -175,7 +175,11 @@ class CKANServer(ResumptionOAIPMH):
         if subj is not None and 'Discipline' in extras:
             subj.extend(extras['Discipline'])
 
-        authors = [author for author in package.get('author', '').split(";")]
+        author = package.get('author')
+        if author:
+            authors = [a for a in author.split(";")]
+        else:
+            authors = None
 
         meta = {
             'DOI': extras['DOI'] if 'DOI' in extras else None,
