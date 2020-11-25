@@ -174,7 +174,7 @@ class CKANServer(ResumptionOAIPMH):
         # identifiers = self._set_id(package, extras)
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
-            subj.append(extras['Discipline'])
+            subj.extend(extras['Discipline'])
 
         authors = [author for author in package.get('author', '').split(";")]
 
