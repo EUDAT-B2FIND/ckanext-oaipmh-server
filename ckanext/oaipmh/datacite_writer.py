@@ -4,7 +4,7 @@ from lxml.etree import Element
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_DATACITE = 'http://schema.datacite.org/meta/kernel-4.1/'
+NS_DATACITE = 'http://schema.datacite.org/meta/kernel-4.3'
 event_to_dt = {'collection': 'Collected',
                'creation': 'Created',
                'extended': 'Updated',
@@ -51,12 +51,12 @@ def datacite_writer(element, metadata):
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
     e_irq.text = 'false'
     e_sv = SubElement(e_dc, nsoaidatacite('schemaVersion'))
-    e_sv.text = '4.1'
+    e_sv.text = '4.3'
     e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
     e_ds.text = 'EUDAT B2FIND'
     e_pl = SubElement(e_dc, nsoaidatacite('payload'))
     e_r = SubElement(e_pl, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
-    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.1/metadata.xsd' % NS_DATACITE)
+    e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.3/metadata.xsd' % NS_DATACITE)
 
     alt_id_exists = False
 
