@@ -380,9 +380,9 @@ class CKANServer(ResumptionOAIPMH):
                 set_spec = [package.name]
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
-            if metadataPrefix == 'oai_datacite':
+            elif metadataPrefix == 'oai_datacite':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
-            if metadataPrefix == 'oai_b2f':
+            elif metadataPrefix == 'oai_b2f':
                 data.append(self._record_for_dataset_b2f(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
