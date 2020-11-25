@@ -108,7 +108,7 @@ def datacite_writer(element, metadata):
                 continue
             if k == 'language':
                 e_language = SubElement(e_r, nsdatacite('language'))
-                e_language.text = str(v[0])
+                e_language.text = v[0]
                 continue
             if k == 'format':
                 e_formats = SubElement(e_r, nsdatacite('formats'))
@@ -130,7 +130,7 @@ def datacite_writer(element, metadata):
                 e_geoLocations = SubElement(e_r, nsdatacite('geoLocations'))
                 e_geoLocation = SubElement(e_geoLocations, nsdatacite('geoLocation'))
                 e_geoLocationPlace = SubElement(e_geoLocation, nsdatacite('geoLocationPlace'))
-                e_geoLocationPlace.text = str(v[0])
+                e_geoLocationPlace.text = v[0]
                 continue
             if k == 'rights':
                 e_rightslist = SubElement(e_r, nsdatacite('rightsList'))
@@ -155,18 +155,18 @@ def datacite_writer(element, metadata):
                 continue
             if k == 'DOI':
                 e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
-                e_ids.text = str(v[0])
+                e_ids.text = v[0]
                 continue
             if k == 'PID' and not alt_id_exists:
                 alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
                 alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
-                alt_id.text = str(v[0])
+                alt_id.text = v[0]
                 alt_id_exists = True
                 continue
             if k == 'source' and not alt_id_exists:
                 alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
                 alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
-                alt_id.text = str(v[0])
+                alt_id.text = v[0]
                 alt_id_exists = True
                 continue
             if k == 'relatedIdentifier':
