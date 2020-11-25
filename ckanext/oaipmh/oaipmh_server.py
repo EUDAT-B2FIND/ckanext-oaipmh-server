@@ -159,10 +159,11 @@ class CKANServer(ResumptionOAIPMH):
         geographic = package.get('geographic_coverage', '')
         if geographic:
             coverage.extend(geographic.split(','))
+        dates = []
         if temporal_begin or temporal_end:
-            coverage.append("%s/%s" % (temporal_begin, temporal_end))
+            dates.append("%s/%s" % (temporal_begin, temporal_end))
 
-        #Loops through extras -table:
+        # Loops through extras -table:
         extras = {}
         for item in package['extras']:
             for key, value in item.iteritems():
@@ -175,7 +176,8 @@ class CKANServer(ResumptionOAIPMH):
         if subj is not None and 'Discipline' in extras:
             subj.append(extras['Discipline'])
 
-        meta = {'identifier': identifiers[0],
+        meta = {
+            'identifier': identifiers[0],
             'identifierType': identifiers[1],
             'alternateIdentifier': identifiers[2],
             'alternateIdentifierType': identifiers[3],
@@ -194,7 +196,9 @@ class CKANServer(ResumptionOAIPMH):
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
-            'coverage': coverage if coverage else None,}
+            # 'coverage': coverage if coverage else None,
+            'dates': dates if dates else None,
+        }
 
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual

@@ -146,8 +146,9 @@ def datacite_writer(element, metadata):
                 e_dates = SubElement(e_r, nsdatacite(k))
                 for event in v:
                     e_date = SubElement(e_dates, nsdatacite('date'))
-                    e_date.text = event['when']
-                    e_date.set('dateType', event_to_dt[event['type']])
+                    e_date.text = event
+                    e_date.set('dateType', 'Collected')
+                    # e_date.set('dateType', event_to_dt[event['type']])
                 continue
             if k == 'identifier':
                 if idType_state is not None:
