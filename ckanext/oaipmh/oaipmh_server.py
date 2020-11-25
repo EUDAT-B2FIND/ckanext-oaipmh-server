@@ -195,7 +195,6 @@ class CKANServer(ResumptionOAIPMH):
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
-            # 'coverage': coverage if coverage else None,
             'dates': dates if dates else None,
             'geoLocation': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
         }

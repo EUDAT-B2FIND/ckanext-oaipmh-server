@@ -138,15 +138,11 @@ def datacite_writer(element, metadata):
                     e_rights.text = rights
                 continue
             if k == 'fundingReference':
-                if v[0].get('organisation') or v[0].get('name'):
-                    e_agent_parent = e_r.find(".//{*}" + 'contributors')
-                    if not e_agent_parent:
-                        e_agent_parent = SubElement(e_r, nsdatacite('contributors'))
-                    for agent in v:
-                        e_agent = SubElement(e_agent_parent, nsdatacite('contributor'))
-                        e_agent.set('contributorType', 'Funder')
-                        e_agent_name = SubElement(e_agent, nsdatacite('contributorName'))
-                        e_agent_name.text = agent.get('organisation') or agent.get('name')
+                e_funds = SubElement(e_r, nsdatacite('fundingReferences'))
+                for fund in v:
+                    e_fund = SubElement(e_funds, nsdatacite('fundingReference'))
+                    e_fund_name = SubElement(e_fund, nsdatacite('funderName'))
+                    e_fund_name.text = fund
                 continue
             if k == 'dates':
                 e_dates = SubElement(e_r, nsdatacite(k))
