@@ -4,7 +4,7 @@ from lxml.etree import Element
 from oaipmh.server import NS_XSI
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
-NS_DATACITE = 'http://schema.datacite.org/meta/kernel-4'
+NS_DATACITE = 'http://datacite.org/schema/kernel-4'
 event_to_dt = {'collection': 'Collected',
                'creation': 'Created',
                'extended': 'Updated',

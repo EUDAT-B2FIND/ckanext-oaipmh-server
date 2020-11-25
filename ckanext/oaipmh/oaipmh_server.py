@@ -357,7 +357,7 @@ class CKANServer(ResumptionOAIPMH):
                  'http://www.openarchives.org/OAI/2.0/oai_dc/'),
                 ('oai_datacite',
                  'http://schema.datacite.org/meta/kernel-4.3/metadata.xsd',
-                 'http://schema.datacite.org/meta/kernel-4'),
+                 'http://datacite.org/schema/kernel-4'),
                 ('oai_b2f',
                  'http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd',
                  'http://b2find.eudat.eu/schema/b2f/2.0/'),
