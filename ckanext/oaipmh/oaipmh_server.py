@@ -278,6 +278,10 @@ class CKANServer(ResumptionOAIPMH):
             if from_ and until:
                 packages = packages.filter(between(PackageRevision.revision_timestamp, from_, until)).\
                     filter(Package.name==PackageRevision.name)
+            if batch_size:
+                packages = packages.limit(batch_size)
+            if cursor:
+                packages = packages.offset(cursor)
             packages = packages.all()
         elif set == 'openaire_data':
             oa_tag = Session.query(Tag).filter(Tag.name == 'openaire_data').first()
@@ -299,10 +303,14 @@ class CKANServer(ResumptionOAIPMH):
                 if from_ and until:
                     packages = packages.filter(between(PackageRevision.revision_timestamp, from_, until)).\
                         filter(Package.name==PackageRevision.name)
+                if batch_size:
+                    packages = packages.limit(batch_size)
+                if cursor:
+                    packages = packages.offset(cursor)
                 packages = packages.all()
-        if cursor is not None:
-            cursor_end = cursor + batch_size if cursor + batch_size < len(packages) else len(packages)
-            packages = packages[cursor:cursor_end]
+        # if cursor is not None:
+        #     cursor_end = cursor + batch_size if cursor + batch_size < len(packages) else len(packages)
+        #     packages = packages[cursor:cursor_end]
         return packages, setspc
 
     def getRecord(self, metadataPrefix, identifier):
