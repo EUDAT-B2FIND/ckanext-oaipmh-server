@@ -59,7 +59,7 @@ class CKANServer(ResumptionOAIPMH):
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
         dataset_xml = rdfserializer.serialize_dataset(package, _format='xml')
-        return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
+        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
                 dataset_xml, None)
 
     def _set_id(self, package, extras):
@@ -146,7 +146,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
+        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
@@ -214,7 +214,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
+        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
 
@@ -243,7 +243,7 @@ class CKANServer(ResumptionOAIPMH):
                 'language': [l.strip() for l in package.get('language').split(",")] if package.get('language', None) else None,
                 'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
                 'subject': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
-                'date': [dataset.metadata_created.strftime('%Y-%m-%d')] if dataset.metadata_created else None,
+                'date': [dataset.metadata_modified.strftime('%Y-%m-%d')] if dataset.metadata_modified else None,
                 'rights': [package['license_title']] if package.get('license_title', None) else None,
                 'coverage': coverage if coverage else [], }
 
@@ -257,7 +257,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_created, set_spec, False),
+        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     @staticmethod
@@ -270,14 +270,11 @@ class CKANServer(ResumptionOAIPMH):
             packages = Session.query(Package).filter(Package.type=='dataset'). \
                 filter(Package.state == 'active').filter(Package.private!=True)
             if from_ and not until:
-                packages = packages.filter(PackageRevision.revision_timestamp > from_).\
-                    filter(Package.name==PackageRevision.name)
+                packages = packages.filter(Package.metadata_modified > from_)
             if until and not from_:
-                packages = packages.filter(PackageRevision.revision_timestamp < until).\
-                    filter(Package.name==PackageRevision.name)
+                packages = packages.filter(Package.metadata_modified < until)
             if from_ and until:
-                packages = packages.filter(between(PackageRevision.revision_timestamp, from_, until)).\
-                    filter(Package.name==PackageRevision.name)
+                packages = packages.filter(between(Package.metadata_modified, from_, until))
             if batch_size:
                 packages = packages.limit(batch_size)
             if cursor:
@@ -295,14 +292,11 @@ class CKANServer(ResumptionOAIPMH):
                 packages = group.packages(return_query=True, with_private=False).filter(Package.type=='dataset'). \
                     filter(Package.state == 'active')
                 if from_ and not until:
-                    packages = packages.filter(PackageRevision.revision_timestamp > from_).\
-                        filter(Package.name==PackageRevision.name)
+                    packages = packages.filter(Package.metadata_modified > from_)
                 if until and not from_:
-                    packages = packages.filter(PackageRevision.revision_timestamp < until).\
-                        filter(Package.name==PackageRevision.name)
+                    packages = packages.filter(Package.metadata_modified < until)
                 if from_ and until:
-                    packages = packages.filter(between(PackageRevision.revision_timestamp, from_, until)).\
-                        filter(Package.name==PackageRevision.name)
+                    packages = packages.filter(between(Package.metadata_modified, from_, until))
                 if batch_size:
                     packages = packages.limit(batch_size)
                 if cursor:
@@ -354,7 +348,7 @@ class CKANServer(ResumptionOAIPMH):
                     set_spec.append(group.name)
             if not set_spec:
                 set_spec = [package.name]
-            data.append(common.Header('', package.id, package.metadata_created, set_spec, False))
+            data.append(common.Header('', package.id, package.metadata_modified, set_spec, False))
         return data
 
     def listMetadataFormats(self, identifier=None):
