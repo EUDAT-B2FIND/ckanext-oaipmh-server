@@ -300,13 +300,8 @@ class CKANServer(ResumptionOAIPMH):
         #     packages = packages[cursor:cursor_end]
         return packages
 
-    def getRecord(self, metadataPrefix, identifier):
-        '''Simple getRecord for a dataset.
-        '''
-        package = Package.get(identifier)
-        if not package:
-            raise IdDoesNotExistError("No dataset with id %s" % identifier)
-
+    @staticmethod
+    def _set_spec(package):
         set_spec = []
         if package.owner_org:
             group = Group.get(package.owner_org)
@@ -314,6 +309,16 @@ class CKANServer(ResumptionOAIPMH):
                 set_spec.append(group.name)
         if not set_spec:
             set_spec = [package.name]
+        return set_spec
+
+    def getRecord(self, metadataPrefix, identifier):
+        '''Simple getRecord for a dataset.
+        '''
+        package = Package.get(identifier)
+        if not package:
+            raise IdDoesNotExistError("No dataset with id %s" % identifier)
+
+        set_spec = self._set_spec(package)
         if metadataPrefix == 'rdf':
             return self._record_for_dataset_dcat(package, set_spec)
         if metadataPrefix == 'oai_datacite':
@@ -330,13 +335,7 @@ class CKANServer(ResumptionOAIPMH):
         packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
-            set_spec = []
-            if package.owner_org:
-                group = Group.get(package.owner_org)
-                if group and group.name:
-                    set_spec.append(group.name)
-            if not set_spec:
-                set_spec = [package.name]
+            set_spec = self._set_spec(package)
             data.append(common.Header('', package.id, package.metadata_modified, set_spec, False))
         return data
 
@@ -365,13 +364,7 @@ class CKANServer(ResumptionOAIPMH):
         packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
-            set_spec = []
-            if package.owner_org:
-                group = Group.get(package.owner_org)
-                if group and group.name:
-                    set_spec.append(group.name)
-            if not set_spec:
-                set_spec = [package.name]
+            set_spec = self._set_spec(package)
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
             elif metadataPrefix == 'oai_datacite':
