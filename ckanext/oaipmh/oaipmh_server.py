@@ -11,7 +11,7 @@ from sqlalchemy import between
 
 from ckan.lib.helpers import url_for
 from ckan.logic import get_action
-from ckan.model import Package, Session, Group, PackageRevision
+from ckan.model import Package, Session, Group
 import utils
 
 log = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class CKANServer(ResumptionOAIPMH):
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
         dataset_xml = rdfserializer.serialize_dataset(package, _format='xml')
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 dataset_xml, None)
 
     def _set_id(self, package, extras):
@@ -146,7 +146,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
@@ -214,7 +214,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
 
@@ -257,7 +257,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     @staticmethod
