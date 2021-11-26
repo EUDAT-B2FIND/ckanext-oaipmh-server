@@ -306,9 +306,10 @@ class CKANServer(ResumptionOAIPMH):
         if package.owner_org:
             group = Group.get(package.owner_org)
             if group and group.name:
-                set_spec.append(group.name)
-        if not set_spec:
-            set_spec = [package.name]
+                if not group.name == "eudat-b2find":
+                    set_spec.append(group.name)
+        # if not set_spec:
+        #    set_spec = [package.name]
         return set_spec
 
     def getRecord(self, metadataPrefix, identifier):
