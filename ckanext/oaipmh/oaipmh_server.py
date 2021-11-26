@@ -17,7 +17,6 @@ import utils
 log = logging.getLogger(__name__)
 
 
-
 class CKANServer(ResumptionOAIPMH):
     '''A OAI-PMH implementation class for CKAN.
     '''
@@ -265,7 +264,6 @@ class CKANServer(ResumptionOAIPMH):
         '''Get a part of datasets for "listNN" verbs.
         '''
         packages = []
-        setspc = None
         if not set:
             packages = Session.query(Package).filter(Package.type=='dataset'). \
                 filter(Package.state == 'active').filter(Package.private!=True)
@@ -280,11 +278,6 @@ class CKANServer(ResumptionOAIPMH):
             if cursor:
                 packages = packages.offset(cursor)
             packages = packages.all()
-        elif set == 'openaire_data':
-            oa_tag = Session.query(Tag).filter(Tag.name == 'openaire_data').first()
-            if oa_tag:
-                packages = oa_tag.packages
-            setspc = set
         else:
             group = Group.get(set)
             if group:
@@ -305,7 +298,7 @@ class CKANServer(ResumptionOAIPMH):
         # if cursor is not None:
         #     cursor_end = cursor + batch_size if cursor + batch_size < len(packages) else len(packages)
         #     packages = packages[cursor:cursor_end]
-        return packages, setspc
+        return packages
 
     def getRecord(self, metadataPrefix, identifier):
         '''Simple getRecord for a dataset.
@@ -336,12 +329,10 @@ class CKANServer(ResumptionOAIPMH):
         '''List all identifiers for this repository.
         '''
         data = []
-        packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
+        packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
             set_spec = []
-            if setspc:
-                set_spec.append(setspc)
             if package.owner_org:
                 group = Group.get(package.owner_org)
                 if group and group.name:
@@ -372,12 +363,10 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a selection of records, basically lists all datasets.
         '''
         data = []
-        packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
+        packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
             set_spec = []
-            if setspc:
-                set_spec.append(setspc)
             if package.owner_org:
                 group = Group.get(package.owner_org)
                 if group and group.name:
