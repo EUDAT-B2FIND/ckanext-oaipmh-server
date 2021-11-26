@@ -86,7 +86,7 @@ class CKANServer(ResumptionOAIPMH):
 
         return [identifier, identifierType, alternateIdentifier, alternateIdentifierType]
 
-    def _record_for_dataset_b2f(self, dataset, set_spec):
+    def _record_for_dataset_eudatcore(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
@@ -328,7 +328,7 @@ class CKANServer(ResumptionOAIPMH):
         if metadataPrefix == 'oai_datacite':
             return self._record_for_dataset_datacite(package, set_spec)
         if metadataPrefix == 'oai_eudatcore':
-            return self._record_for_dataset_b2f(package, set_spec)
+            return self._record_for_dataset_eudatcore(package, set_spec)
         return self._record_for_dataset(package, set_spec)
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
@@ -361,8 +361,8 @@ class CKANServer(ResumptionOAIPMH):
                  'http://schema.datacite.org/meta/kernel-4.3/metadata.xsd',
                  'http://datacite.org/schema/kernel-4'),
                 ('oai_eudatcore',
-                 'http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd',
-                 'http://b2find.eudat.eu/schema/b2f/2.0/'),
+                 'https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd',
+                 'http://schema.eudat.eu/schema/kernel-1'),
                 ('rdf',
                  'http://www.openarchives.org/OAI/2.0/rdf.xsd',
                  'http://www.openarchives.org/OAI/2.0/rdf/')]
@@ -389,7 +389,7 @@ class CKANServer(ResumptionOAIPMH):
             elif metadataPrefix == 'oai_datacite':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
             elif metadataPrefix == 'oai_eudatcore':
-                data.append(self._record_for_dataset_b2f(package, set_spec))
+                data.append(self._record_for_dataset_eudatcore(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
         return data
