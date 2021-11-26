@@ -352,9 +352,10 @@ class CKANServer(ResumptionOAIPMH):
                 ('oai_eudatcore',
                  'https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd',
                  'http://schema.eudat.eu/schema/kernel-1'),
-                ('rdf',
-                 'http://www.openarchives.org/OAI/2.0/rdf.xsd',
-                 'http://www.openarchives.org/OAI/2.0/rdf/')]
+                # ('rdf',
+                # 'http://www.openarchives.org/OAI/2.0/rdf.xsd',
+                # 'http://www.openarchives.org/OAI/2.0/rdf/')
+                ]
 
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
