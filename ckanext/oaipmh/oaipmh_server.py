@@ -312,8 +312,6 @@ class CKANServer(ResumptionOAIPMH):
             group = Group.get(package.owner_org)
             if group and group.name:
                 set_spec.append(group.name)
-        if 'openaire_data' in package.as_dict().get('tags'):
-            set_spec.append('openaire_data')
         if not set_spec:
             set_spec = [package.name]
         if metadataPrefix == 'rdf':
@@ -388,8 +386,6 @@ class CKANServer(ResumptionOAIPMH):
         '''List all sets in this repository, where sets are groups.
         '''
         data = []
-        if not cursor or cursor == 0:
-            data.append(('openaire_data', 'OpenAIRE data', ''))
         groups = Session.query(Group).filter(Group.state == 'active')
         if cursor is not None:
             cursor_end = cursor+batch_size if cursor+batch_size < groups.count() else groups.count()
