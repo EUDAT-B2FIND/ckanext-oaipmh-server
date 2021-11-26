@@ -6,7 +6,7 @@ NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
 NS_B2F = 'http://b2find.eudat.eu/schema/b2f/2.0/'
 
 
-def b2f_writer(element, metadata):
+def eudatcore_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
     e_dc = SubElement(element, nsoaidatacite('oai_b2f'),
