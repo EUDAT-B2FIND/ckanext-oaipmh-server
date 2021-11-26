@@ -9,7 +9,7 @@ NS_B2F = 'http://b2find.eudat.eu/schema/b2f/2.0/'
 def eudatcore_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
-    e_dc = SubElement(element, nsoaidatacite('oai_b2f'),
+    e_dc = SubElement(element, nsoaidatacite('oai_eudatcore'),
                       nsmap={None: NS_OAIDATACITE, 'xsi': NS_XSI})
     e_dc.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/oai/oai-1.0/oai.xsd' % NS_OAIDATACITE)
     e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
