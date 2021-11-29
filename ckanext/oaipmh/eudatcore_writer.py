@@ -104,20 +104,11 @@ def eudatcore_writer(element, metadata):
                     e_rights = SubElement(e_rightslist, nseudatcore(k))
                     e_rights.text = rights
                 continue
-            if k == 'DOI':
+            if k == 'identifiers':
                 if v:
-                    e_doi = SubElement(e_r, nseudatcore('DOI'))
-                    e_doi.text = v[0]
-                continue
-            if k == 'PID':
-                if v:
-                    e_pid = SubElement(e_r, nseudatcore('PID'))
-                    e_pid.text = v[0]
-                continue
-            if k == 'source':
-                if v:
-                    e_pid = SubElement(e_r, nseudatcore('source'))
-                    e_pid.text = v[0]
+                    e_ids = SubElement(e_r, nseudatcore('identifiers'))
+                    e_id = SubElement(e_ids, nseudatcore('identifier'), identifierType=v[1])
+                    e_id.text = v[0]
                 continue
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nseudatcore('relatedIdentifiers'))

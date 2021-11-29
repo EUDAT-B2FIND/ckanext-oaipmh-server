@@ -64,26 +64,18 @@ class CKANServer(ResumptionOAIPMH):
     def _set_id(self, package, extras):
         identifier = None
         identifierType = None
-        alternateIdentifier = None
-        alternateIdentifierType = None
 
         identifier = package['url'] if 'url' in package else None
         identifierType = 'URL'
-        alternateIdentifier = package['id']
-        alternateIdentifierType = 'Handle'
-
 
         if 'DOI' in extras:
             identifier = re.search('10.*', extras['DOI']).group(0)
             identifierType = 'DOI'
-        if 'URN' in extras:
-            identifier = extras['URN']
-            identifierType = 'URN'
-        if identifier is None:
-            identifier = package['id']
+        elif 'PID' in extras:
+            identifier = extras['PID']
             identifierType = 'Handle'
 
-        return [identifier, identifierType, alternateIdentifier, alternateIdentifierType]
+        return [identifier, identifierType]
 
     def _record_for_dataset_eudatcore(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -116,10 +108,8 @@ class CKANServer(ResumptionOAIPMH):
 
         meta = {
             'community': package.get('group', None),
-            'DOI': extras['DOI'] if 'DOI' in extras else None,
-            'PID': extras['PID'] if 'PID' in extras else None,
             'version': extras['Version'] if 'Version' in extras else None,
-            'source': package.get('url', None),
+            'identifiers': identifiers,
             'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
             'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
