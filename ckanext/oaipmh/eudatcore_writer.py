@@ -157,8 +157,10 @@ def eudatcore_writer(element, metadata):
                 continue
             if k == 'temporalCoverage':
                 if v:
-                    e_temporal_coverage = SubElement(e_r, nseudatcore('temporalCoverage'))
-                    e_temporal_coverage.text = v[0]
+                    e_temporal_coverages = SubElement(e_r, nseudatcore('temporalCoverages'))
+                    e_temporal_coverage = SubElement(e_temporal_coverages, nseudatcore('temporalCoverage'))
+                    e_span = SubElement(e_temporal_coverage, nseudatcore('span'))
+                    e_span.text = v[0]
                 continue
 
 
