@@ -154,8 +154,10 @@ def eudatcore_writer(element, metadata):
                 continue
             if k == 'spatialCoverage':
                 if v:
-                    e_spatial_coverage = SubElement(e_r, nseudatcore('spatialCoverage'))
-                    e_spatial_coverage.text = v[0]
+                    e_spatial_coverages = SubElement(e_r, nseudatcore('spatialCoverages'))
+                    e_spatial_coverage = SubElement(e_spatial_coverages, nseudatcore('spatialCoverage'))
+                    e_spatial_places = SubElement(e_spatial_coverage, nseudatcore('geoLocationPlace'))
+                    e_spatial_places.text = v[0]
                 continue
             if k == 'temporalCoverage':
                 if v:
