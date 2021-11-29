@@ -140,8 +140,13 @@ def eudatcore_writer(element, metadata):
             if k == 'fundingReference':
                 e_funds = SubElement(e_r, nseudatcore('fundingReferences'))
                 for fund in v:
+                    fund_info = fund.split(',')
                     e_fund = SubElement(e_funds, nseudatcore('fundingReference'))
-                    e_fund.text = fund
+                    e_fund_name = SubElement(e_fund, nseudatcore('funderName'))
+                    e_fund_name.text = fund_info[0]
+                    if len(fund_info) > 1:
+                        e_fund_awardno = SubElement(e_fund, nseudatcore('awardNumber'))
+                        e_fund_awardno.text = fund_info[1]
                 continue
             if k == 'spatialCoverage':
                 if v:
