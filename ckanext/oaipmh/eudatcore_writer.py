@@ -65,7 +65,8 @@ def eudatcore_writer(element, metadata):
                 e_creators = SubElement(e_r, nseudatcore('creators'))
                 for creatorName in v:
                     e_creator = SubElement(e_creators, nseudatcore('creator'))
-                    e_creator.text = creatorName
+                    e_creator_name = SubElement(e_creator, nseudatcore('creatorName'))
+                    e_creator_name.text = creatorName
                 continue
             if k == 'contributor':
                 e_contributors = SubElement(e_r, nseudatcore('contributors'))
