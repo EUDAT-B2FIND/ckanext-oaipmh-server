@@ -158,14 +158,14 @@ def eudatcore_writer(element, metadata):
             if k == 'temporalCoverage':
                 if v:
                     e_temporal_coverages = SubElement(e_r, nseudatcore('temporalCoverages'))
-                    if v[0]:
+                    if v[0] or v[1]:
                         e_temporal_coverage = SubElement(e_temporal_coverages, nseudatcore('temporalCoverage'))
-                        e_start = SubElement(e_temporal_coverage, nseudatcore('startDate'),format='ISO-8601')
-                        e_start.text = v[0]
-                    if v[1]:
-                        e_temporal_coverage = SubElement(e_temporal_coverages, nseudatcore('temporalCoverage'))
-                        e_end = SubElement(e_temporal_coverage, nseudatcore('endDate'),format='ISO-8601')
-                        e_end.text = v[1]
+                        if v[0]:
+                            e_start = SubElement(e_temporal_coverage, nseudatcore('startDate'),format='ISO-8601')
+                            e_start.text = v[0]
+                        if v[1]:
+                            e_end = SubElement(e_temporal_coverage, nseudatcore('endDate'),format='ISO-8601')
+                            e_end.text = v[1]
                     if v[2]:
                         e_temporal_coverage = SubElement(e_temporal_coverages, nseudatcore('temporalCoverage'))
                         e_span = SubElement(e_temporal_coverage, nseudatcore('span'))
