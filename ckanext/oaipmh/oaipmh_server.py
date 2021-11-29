@@ -108,6 +108,11 @@ class CKANServer(ResumptionOAIPMH):
 
         identifiers = self._set_id(package, extras)
         keywords = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+        author = package.get('author')
+        if author:
+            authors = [a for a in author.split(";")]
+        else:
+            authors = None
 
         meta = {
             'community': package.get('group', None),
@@ -116,7 +121,7 @@ class CKANServer(ResumptionOAIPMH):
             'version': extras['Version'] if 'Version' in extras else None,
             'source': package.get('url', None),
             'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
-            'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'contact': extras['Contact'] if 'Contact' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
@@ -128,12 +133,16 @@ class CKANServer(ResumptionOAIPMH):
             'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
             'keywords': keywords,
             'disciplines': extras['Discipline'] if 'Discipline' in extras else None,
-            'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
+            'rights': extras['Rights'] if 'Rights' in extras else None,
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
+            'instrument': extras['Instrument'] if 'Instrument' in extras else None,
             'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
+            'spatial': extras['spatial'] if 'spatial' in extras else None,
             'temporalCoverage': extras['TemporalCoverage'] if 'TemporalCoverage' in extras else None,
+            'temporalCoverage_Begin': extras['TemporalCoverage:BeginDate'] if 'TemporalCoverage:BeginDate' in extras else None,
+            'temporalCoverage_End': extras['TemporalCoverage:EndDate'] if 'TemporalCoverage:EndDate' in extras else None,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
         }
 
