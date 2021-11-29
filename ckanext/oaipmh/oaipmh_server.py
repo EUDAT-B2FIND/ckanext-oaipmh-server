@@ -105,13 +105,14 @@ class CKANServer(ResumptionOAIPMH):
             authors = [a for a in author.split(";")]
         else:
             authors = None
-        temporal_coverages = {}
+        span = startDate = endDate = None
         if 'TemporalCoverage' in extras: 
-            temporal_coverages['span']=extras['TemporalCoverage']
+            span = extras['TemporalCoverage']
         if 'TemporalCoverage:BeginDate' in extras:
-            temporal_coverages['startDate']=extras['TemporalCoverage:BeginDate']
+            startDate = extras['TemporalCoverage:BeginDate']
         if 'TemporalCoverage:EndDate' in extras:
-            temporal_coverages['endDate']=extras['TemporalCoverage:EndDate']
+            endDate = extras['TemporalCoverage:EndDate']
+        temporal_coverages = [startDate, endDate, span]
 
         meta = {
             'community': package.get('group', None),
