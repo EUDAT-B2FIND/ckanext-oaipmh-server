@@ -3,6 +3,7 @@
 import json
 import logging
 import re
+import geojson
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
@@ -11,11 +12,10 @@ from sqlalchemy import between
 
 from ckan.lib.helpers import url_for
 from ckan.logic import get_action
-from ckan.model import Package, Session, Group, PackageRevision
+from ckan.model import Package, Session, Group
 import utils
 
 log = logging.getLogger(__name__)
-
 
 
 class CKANServer(ResumptionOAIPMH):
@@ -59,45 +59,29 @@ class CKANServer(ResumptionOAIPMH):
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
         dataset_xml = rdfserializer.serialize_dataset(package, _format='xml')
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 dataset_xml, None)
 
     def _set_id(self, package, extras):
         identifier = None
         identifierType = None
-        alternateIdentifier = None
-        alternateIdentifierType = None
 
         identifier = package['url'] if 'url' in package else None
         identifierType = 'URL'
-        alternateIdentifier = package['id']
-        alternateIdentifierType = 'Handle'
-
 
         if 'DOI' in extras:
             identifier = re.search('10.*', extras['DOI']).group(0)
             identifierType = 'DOI'
-        if 'URN' in extras:
-            identifier = extras['URN']
-            identifierType = 'URN'
-        if identifier is None:
-            identifier = package['id']
+        elif 'PID' in extras:
+            identifier = extras['PID']
             identifierType = 'Handle'
 
-        return [identifier, identifierType, alternateIdentifier, alternateIdentifierType]
+        return [identifier, identifierType]
 
-    def _record_for_dataset_b2f(self, dataset, set_spec):
+    def _record_for_dataset_eudatcore(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
-        # coverage = []
-        # temporal_begin = package.get('temporal_coverage_begin', '')
-        # temporal_end = package.get('temporal_coverage_end', '')
-        # geographic = package.get('geographic_coverage', '')
-        # if geographic:
-        #     coverage.extend(geographic.split(','))
-        # if temporal_begin or temporal_end:
-        #     coverage.append("%s/%s" % (temporal_begin, temporal_end))
 
         # Loops through extras -table:
         extras = {}
@@ -109,15 +93,43 @@ class CKANServer(ResumptionOAIPMH):
 
         identifiers = self._set_id(package, extras)
         keywords = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+        author = package.get('author')
+        if author:
+            authors = [a for a in author.split(";")]
+        else:
+            authors = None
+        span = startDate = endDate = None
+        if 'TemporalCoverage' in extras:
+            span = extras['TemporalCoverage']
+        if 'TemporalCoverage:BeginDate' in extras:
+            startDate = extras['TemporalCoverage:BeginDate']
+        if 'TemporalCoverage:EndDate' in extras:
+            endDate = extras['TemporalCoverage:EndDate']
+        temporal_coverages = [startDate, endDate, span]
+
+        place = extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None
+        place = None
+        if 'SpatialCoverage' in extras:
+            place = extras['SpatialCoverage']
+            place = place.split(';')[-1].strip()
+
+        bbox = point = None
+        if 'spatial' in extras:
+            spatial = extras['spatial']
+            geom = geojson.loads(spatial)
+            feature = geojson.Feature(geometry=geom)
+            coords = [c for c in geojson.utils.coords(feature)]
+            if len(coords) == 5:
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
+            elif len(coords) == 1:
+                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
 
         meta = {
             'community': package.get('group', None),
-            'DOI': extras['DOI'] if 'DOI' in extras else None,
-            'PID': extras['PID'] if 'PID' in extras else None,
             'version': extras['Version'] if 'Version' in extras else None,
-            'source': package.get('url', None),
+            'identifiers': identifiers,
             'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
-            'creator': [author for author in package['author'].split(";")] if 'author' in package else None,
+            'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'contact': extras['Contact'] if 'Contact' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
@@ -129,12 +141,13 @@ class CKANServer(ResumptionOAIPMH):
             'descriptions': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
             'keywords': keywords,
             'disciplines': extras['Discipline'] if 'Discipline' in extras else None,
-            'rights': extras['Rights'].replace('info:eu-repo/semantics/openAccess', '') if 'Rights' in extras else None,
+            'rights': extras['Rights'] if 'Rights' in extras else None,
             'openAccess': extras['OpenAccess'] if 'OpenAccess' in extras else None,
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
-            'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
-            'temporalCoverage': extras['TemporalCoverage'] if 'TemporalCoverage' in extras else None,
+            'instrument': extras['Instrument'] if 'Instrument' in extras else None,
+            'spatialCoverage': [place, point, bbox],
+            'temporalCoverage': temporal_coverages,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
         }
 
@@ -146,7 +159,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
@@ -214,7 +227,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
 
@@ -222,6 +235,14 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
+        # Loops through extras -table:
+        extras = {}
+        for item in package['extras']:
+            for key, value in item.iteritems():
+                key = item['key']   # extras table is constructed as key: language, value: English
+                value = item['value']  # instead of language : English, that is why it is looped here
+                values = value.split(";")
+                extras.update({key: values})
 
         coverage = []
         temporal_begin = package.get('temporal_coverage_begin', '')
@@ -237,14 +258,32 @@ class CKANServer(ResumptionOAIPMH):
         pids.append(package.get('id'))
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
+        subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+        if subj is not None and 'Discipline' in extras:
+            subj.extend(extras['Discipline'])
+
+        author = package.get('author')
+        if author:
+            authors = [a for a in author.split(";")]
+        else:
+            authors = None
+
         meta = {#'title': self._get_json_content(package.get('title', None) or package.get('name')),
                 'identifier': pids,
                 'type': ['dataset'],
                 'language': [l.strip() for l in package.get('language').split(",")] if package.get('language', None) else None,
                 'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
                 'subject': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
+                'creator': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
                 'date': [dataset.metadata_modified.strftime('%Y-%m-%d')] if dataset.metadata_modified else None,
-                'rights': [package['license_title']] if package.get('license_title', None) else None,
+                #'rights': [package['license_title']] if package.get('license_title', None) else None,
+                'publisher': extras['Publisher'] if 'Publisher' in extras else None,
+                'creator': authors if authors else None,
+                'contributor': extras['Contributor'] if 'Contributor' in extras else None,
+                'rights': extras['Rights'] if 'Rights' in extras else None,
+                'size': extras['Size'] if 'Size' in extras else None,
+                'format': extras['Format'] if 'Format' in extras else None,
+                'title': package.get('title', None) or package.get('name'),
                 'coverage': coverage if coverage else [], }
 
         iters = dataset.extras.items()
@@ -257,7 +296,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        return (common.Header('', dataset.id, dataset.metadata_modified, set_spec, False),
+        return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata), None)
 
     @staticmethod
@@ -265,7 +304,6 @@ class CKANServer(ResumptionOAIPMH):
         '''Get a part of datasets for "listNN" verbs.
         '''
         packages = []
-        setspc = None
         if not set:
             packages = Session.query(Package).filter(Package.type=='dataset'). \
                 filter(Package.state == 'active').filter(Package.private!=True)
@@ -280,11 +318,6 @@ class CKANServer(ResumptionOAIPMH):
             if cursor:
                 packages = packages.offset(cursor)
             packages = packages.all()
-        elif set == 'openaire_data':
-            oa_tag = Session.query(Tag).filter(Tag.name == 'openaire_data').first()
-            if oa_tag:
-                packages = oa_tag.packages
-            setspc = set
         else:
             group = Group.get(set)
             if group:
@@ -305,7 +338,19 @@ class CKANServer(ResumptionOAIPMH):
         # if cursor is not None:
         #     cursor_end = cursor + batch_size if cursor + batch_size < len(packages) else len(packages)
         #     packages = packages[cursor:cursor_end]
-        return packages, setspc
+        return packages
+
+    @staticmethod
+    def _set_spec(package):
+        set_spec = []
+        if package.owner_org:
+            group = Group.get(package.owner_org)
+            if group and group.name:
+                if not group.name == "eudat-b2find":
+                    set_spec.append(group.name)
+        # if not set_spec:
+        #    set_spec = [package.name]
+        return set_spec
 
     def getRecord(self, metadataPrefix, identifier):
         '''Simple getRecord for a dataset.
@@ -314,21 +359,13 @@ class CKANServer(ResumptionOAIPMH):
         if not package:
             raise IdDoesNotExistError("No dataset with id %s" % identifier)
 
-        set_spec = []
-        if package.owner_org:
-            group = Group.get(package.owner_org)
-            if group and group.name:
-                set_spec.append(group.name)
-        if 'openaire_data' in package.as_dict().get('tags'):
-            set_spec.append('openaire_data')
-        if not set_spec:
-            set_spec = [package.name]
+        set_spec = self._set_spec(package)
         if metadataPrefix == 'rdf':
             return self._record_for_dataset_dcat(package, set_spec)
         if metadataPrefix == 'oai_datacite':
             return self._record_for_dataset_datacite(package, set_spec)
-        if metadataPrefix == 'oai_b2f':
-            return self._record_for_dataset_b2f(package, set_spec)
+        if metadataPrefix == 'oai_eudatcore':
+            return self._record_for_dataset_eudatcore(package, set_spec)
         return self._record_for_dataset(package, set_spec)
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
@@ -336,18 +373,10 @@ class CKANServer(ResumptionOAIPMH):
         '''List all identifiers for this repository.
         '''
         data = []
-        packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
+        packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
-            set_spec = []
-            if setspc:
-                set_spec.append(setspc)
-            if package.owner_org:
-                group = Group.get(package.owner_org)
-                if group and group.name:
-                    set_spec.append(group.name)
-            if not set_spec:
-                set_spec = [package.name]
+            set_spec = self._set_spec(package)
             data.append(common.Header('', package.id, package.metadata_modified, set_spec, False))
         return data
 
@@ -360,36 +389,29 @@ class CKANServer(ResumptionOAIPMH):
                 ('oai_datacite',
                  'http://schema.datacite.org/meta/kernel-4.3/metadata.xsd',
                  'http://datacite.org/schema/kernel-4'),
-                ('oai_b2f',
-                 'http://b2find.eudat.eu/schema/b2f/2.0/meta.xsd',
-                 'http://b2find.eudat.eu/schema/b2f/2.0/'),
-                ('rdf',
-                 'http://www.openarchives.org/OAI/2.0/rdf.xsd',
-                 'http://www.openarchives.org/OAI/2.0/rdf/')]
+                ('oai_eudatcore',
+                 'https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd',
+                 'http://schema.eudat.eu/schema/kernel-1'),
+                # ('rdf',
+                # 'http://www.openarchives.org/OAI/2.0/rdf.xsd',
+                # 'http://www.openarchives.org/OAI/2.0/rdf/')
+                ]
 
     def listRecords(self, metadataPrefix=None, set=None, cursor=None, from_=None,
                     until=None, batch_size=None):
         '''Show a selection of records, basically lists all datasets.
         '''
         data = []
-        packages, setspc = self._filter_packages(set, cursor, from_, until, batch_size)
+        packages = self._filter_packages(set, cursor, from_, until, batch_size)
 
         for package in packages:
-            set_spec = []
-            if setspc:
-                set_spec.append(setspc)
-            if package.owner_org:
-                group = Group.get(package.owner_org)
-                if group and group.name:
-                    set_spec.append(group.name)
-            if not set_spec:
-                set_spec = [package.name]
+            set_spec = self._set_spec(package)
             if metadataPrefix == 'rdf':
                 data.append(self._record_for_dataset_dcat(package, set_spec))
             elif metadataPrefix == 'oai_datacite':
                 data.append(self._record_for_dataset_datacite(package, set_spec))
-            elif metadataPrefix == 'oai_b2f':
-                data.append(self._record_for_dataset_b2f(package, set_spec))
+            elif metadataPrefix == 'oai_eudatcore':
+                data.append(self._record_for_dataset_eudatcore(package, set_spec))
             else:
                 data.append(self._record_for_dataset(package, set_spec))
         return data
@@ -399,8 +421,6 @@ class CKANServer(ResumptionOAIPMH):
         '''List all sets in this repository, where sets are groups.
         '''
         data = []
-        if not cursor or cursor == 0:
-            data.append(('openaire_data', 'OpenAIRE data', ''))
         groups = Session.query(Group).filter(Group.state == 'active')
         if cursor is not None:
             cursor_end = cursor+batch_size if cursor+batch_size < groups.count() else groups.count()
