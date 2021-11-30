@@ -108,6 +108,10 @@ class CKANServer(ResumptionOAIPMH):
         temporal_coverages = [startDate, endDate, span]
 
         place = extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None
+        place = None
+        if 'SpatialCoverage' in extras:
+            place = extras['SpatialCoverage']
+            place = place.split(',')[-1]
 
         bbox = point = None
         if 'spatial' in extras:
