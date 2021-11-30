@@ -218,6 +218,14 @@ class CKANServer(ResumptionOAIPMH):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
+        # Loops through extras -table:
+        extras = {}
+        for item in package['extras']:
+            for key, value in item.iteritems():
+                key = item['key']   # extras table is constructed as key: language, value: English
+                value = item['value']  # instead of language : English, that is why it is looped here
+                values = value.split(";")
+                extras.update({key: values})
 
         coverage = []
         temporal_begin = package.get('temporal_coverage_begin', '')
@@ -233,14 +241,32 @@ class CKANServer(ResumptionOAIPMH):
         pids.append(package.get('id'))
         pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
+        subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
+        if subj is not None and 'Discipline' in extras:
+            subj.extend(extras['Discipline'])
+
+        author = package.get('author')
+        if author:
+            authors = [a for a in author.split(";")]
+        else:
+            authors = None
+
         meta = {#'title': self._get_json_content(package.get('title', None) or package.get('name')),
                 'identifier': pids,
                 'type': ['dataset'],
                 'language': [l.strip() for l in package.get('language').split(",")] if package.get('language', None) else None,
                 'description': self._get_json_content(package.get('notes')) if package.get('notes', None) else None,
                 'subject': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
+                'creator': [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None,
                 'date': [dataset.metadata_modified.strftime('%Y-%m-%d')] if dataset.metadata_modified else None,
-                'rights': [package['license_title']] if package.get('license_title', None) else None,
+                #'rights': [package['license_title']] if package.get('license_title', None) else None,
+                'publisher': extras['Publisher'] if 'Publisher' in extras else None,
+                'creator': authors if authors else None,
+                'contributor': extras['Contributor'] if 'Contributor' in extras else None,
+                'rights': extras['Rights'] if 'Rights' in extras else None,
+                'size': extras['Size'] if 'Size' in extras else None,
+                'format': extras['Format'] if 'Format' in extras else None,
+                'title': package.get('title', None) or package.get('name'),
                 'coverage': coverage if coverage else [], }
 
         iters = dataset.extras.items()
