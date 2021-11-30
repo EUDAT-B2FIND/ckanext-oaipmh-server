@@ -9,17 +9,7 @@ NS_EUDATCORE = 'http://schema.eudat.eu/schema/kernel-1'
 def eudatcore_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
-    e_dc = SubElement(element, nseudatcore('oai_eudatcore'),
-                      nsmap={None: NS_EUDATCORE, 'xsi': NS_XSI})
-    e_dc.set('{%s}schemaLocation' % NS_XSI, '%s https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd' % NS_EUDATCORE)
-    e_irq = SubElement(e_dc, nseudatcore('isReferenceQuality'))
-    e_irq.text = 'false'
-    e_sv = SubElement(e_dc, nseudatcore('schemaVersion'))
-    e_sv.text = '2.0'
-    e_ds = SubElement(e_dc, nseudatcore('datacentreSymbol'))
-    e_ds.text = 'EUDAT B2FIND'
-    e_pl = SubElement(e_dc, nseudatcore('payload'))
-    e_r = SubElement(e_pl, nseudatcore('resource'), nsmap={None: NS_EUDATCORE, 'xsi': NS_XSI})
+    e_r = SubElement(element, nseudatcore('resource'), nsmap={None: NS_EUDATCORE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd' % NS_EUDATCORE)
 
     map = metadata.getMap()
