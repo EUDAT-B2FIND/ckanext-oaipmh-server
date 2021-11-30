@@ -142,8 +142,28 @@ def eudatcore_writer(element, metadata):
                 if v:
                     e_spatial_coverages = SubElement(e_r, nseudatcore('spatialCoverages'))
                     e_spatial_coverage = SubElement(e_spatial_coverages, nseudatcore('spatialCoverage'))
-                    e_spatial_places = SubElement(e_spatial_coverage, nseudatcore('geoLocationPlace'))
-                    e_spatial_places.text = v[0]
+                    if v[0]:
+                        e_spatial_places = SubElement(e_spatial_coverage, nseudatcore('geoLocationPlace'))
+                        e_spatial_places.text = v[0]
+                    if v[1]:
+                        values = v[1].split(',')
+                        e_point = SubElement(e_spatial_coverage, nseudatcore('geoLocationPoint'))
+                        e_point_long = SubElement(e_point, nseudatcore('pointLongitude'))
+                        e_point_long.text = values[0]
+                        e_point_lat = SubElement(e_point, nseudatcore('pointLatitude'))
+                        e_point_lat.text = values[1]
+                    elif v[2]
+                        values = v[2].split(',')
+                        e_bbox = SubElement(e_spatial_coverage, nseudatcore('geoLocationBox'))
+                        e_bbox_west = SubElement(e_bbox, nseudatcore('westBoundLongitude'))
+                        e_bbox_west.text = values[0]
+                        e_bbox_east = SubElement(e_bbox, nseudatcore('eastBoundLongitude'))
+                        e_bbox_east.text = values[1]
+                        e_bbox_south = SubElement(e_bbox, nseudatcore('southBoundLatitude'))
+                        e_bbox_south.text = values[2]
+                        e_bbox_north = SubElement(e_bbox, nseudatcore('northBoundLatitude'))
+                        e_bbox_north.text = values[3]
+
                 continue
             if k == 'temporalCoverage':
                 if v:

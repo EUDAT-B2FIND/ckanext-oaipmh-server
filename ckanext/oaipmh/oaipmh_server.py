@@ -3,6 +3,7 @@
 import json
 import logging
 import re
+import geojson
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
@@ -106,6 +107,21 @@ class CKANServer(ResumptionOAIPMH):
             endDate = extras['TemporalCoverage:EndDate']
         temporal_coverages = [startDate, endDate, span]
 
+        place = extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None
+
+        bbox = point = None
+        if 'spatial' in extras:
+            spatial = extras['spatial']
+            geom = geojson.loads(spatial)
+            feature = geojson.Feature(geometry=geom)
+            coords = geojson.utils.coords(feature)
+            if len(coords) == 5:
+                bbox = '{}{}{}{}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
+            elif len(coords) == 2
+                point = '{},{}'.format(x=coords[0], y=coords[1])
+
+
+
         meta = {
             'community': package.get('group', None),
             'version': extras['Version'] if 'Version' in extras else None,
@@ -128,8 +144,7 @@ class CKANServer(ResumptionOAIPMH):
             'size': extras['Size'] if 'Size' in extras else None,
             'format': extras['Format'] if 'Format' in extras else None,
             'instrument': extras['Instrument'] if 'Instrument' in extras else None,
-            'spatialCoverage': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
-            'spatial': extras['spatial'] if 'spatial' in extras else None,
+            'spatialCoverage': [place, point, bbox],
             'temporalCoverage': temporal_coverages,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
         }
