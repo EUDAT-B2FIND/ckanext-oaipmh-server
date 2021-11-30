@@ -117,7 +117,7 @@ class CKANServer(ResumptionOAIPMH):
             coords = [c for c in geojson.utils.coords(feature)]
             if len(coords) == 5:
                 bbox = '{west}{east}{south}{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
-            elif len(coords) == 2
+            elif len(coords) == 2:
                 point = '{x},{y}'.format(x=coords[0], y=coords[1])
 
         meta = {
