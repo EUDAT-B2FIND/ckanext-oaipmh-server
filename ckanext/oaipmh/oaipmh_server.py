@@ -111,7 +111,7 @@ class CKANServer(ResumptionOAIPMH):
         place = None
         if 'SpatialCoverage' in extras:
             place = extras['SpatialCoverage']
-            place = place.split(',')[-1]
+            place = place.split(';')[-1].strip()
 
         bbox = point = None
         if 'spatial' in extras:
