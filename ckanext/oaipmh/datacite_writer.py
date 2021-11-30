@@ -45,17 +45,7 @@ def _append_agent(e_agent_parent, role, key, value, roletype=None):
 def datacite_writer(element, metadata):
     '''Transform oaipmh.common.Metadata metadata dictionaries to lxml.etree.Element XML documents.
     '''
-    e_dc = SubElement(element, nsoaidatacite('oai_datacite'),
-                      nsmap = {None: NS_OAIDATACITE, 'xsi': NS_XSI})
-    e_dc.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/oai/oai-1.0/oai.xsd' % NS_OAIDATACITE)
-    e_irq = SubElement(e_dc, nsoaidatacite('isReferenceQuality'))
-    e_irq.text = 'false'
-    e_sv = SubElement(e_dc, nsoaidatacite('schemaVersion'))
-    e_sv.text = '4.3'
-    e_ds = SubElement(e_dc, nsoaidatacite('datacentreSymbol'))
-    e_ds.text = 'EUDAT B2FIND'
-    e_pl = SubElement(e_dc, nsoaidatacite('payload'))
-    e_r = SubElement(e_pl, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
+    e_r = SubElement(element, nsdatacite('resource'), nsmap={None: NS_DATACITE, 'xsi': NS_XSI})
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s http://schema.datacite.org/meta/kernel-4.3/metadata.xsd' % NS_DATACITE)
 
     alt_id_exists = False
