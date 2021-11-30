@@ -152,7 +152,7 @@ def eudatcore_writer(element, metadata):
                         e_point_long.text = values[0]
                         e_point_lat = SubElement(e_point, nseudatcore('pointLatitude'))
                         e_point_lat.text = values[1]
-                    elif v[2]
+                    elif v[2]:
                         values = v[2].split(',')
                         e_bbox = SubElement(e_spatial_coverage, nseudatcore('geoLocationBox'))
                         e_bbox_west = SubElement(e_bbox, nseudatcore('westBoundLongitude'))
