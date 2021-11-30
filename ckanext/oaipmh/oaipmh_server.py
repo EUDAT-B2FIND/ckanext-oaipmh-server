@@ -114,13 +114,11 @@ class CKANServer(ResumptionOAIPMH):
             spatial = extras['spatial']
             geom = geojson.loads(spatial)
             feature = geojson.Feature(geometry=geom)
-            coords = geojson.utils.coords(feature)
+            coords = [c for c in geojson.utils.coords(feature)]
             if len(coords) == 5:
-                bbox = '{}{}{}{}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
+                bbox = '{west}{east}{south}{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
             elif len(coords) == 2
-                point = '{},{}'.format(x=coords[0], y=coords[1])
-
-
+                point = '{x},{y}'.format(x=coords[0], y=coords[1])
 
         meta = {
             'community': package.get('group', None),
