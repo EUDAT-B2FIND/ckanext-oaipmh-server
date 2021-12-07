@@ -172,8 +172,11 @@ class CKANServer(ResumptionOAIPMH):
             for key, value in item.iteritems():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
-                values = value.split(";")
-                extras.update({key: values})
+                if key in ['spatial']:
+                    extras.update({key: value})
+                else:
+                    values = value.split(";")
+                    extras.update({key: values})
 
         temporal_begin = extras.get('TemporalCoverage:BeginDate')
         temporal_end = extras.get('TemporalCoverage:EndDate')
