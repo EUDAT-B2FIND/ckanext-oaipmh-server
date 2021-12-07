@@ -194,6 +194,23 @@ class CKANServer(ResumptionOAIPMH):
         else:
             authors = None
 
+        place = extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None
+        place = None
+        if 'SpatialCoverage' in extras:
+            place = extras['SpatialCoverage']
+            place = place.split(';')[-1].strip()
+
+        bbox = point = None
+        if 'spatial' in extras:
+            spatial = extras['spatial']
+            geom = geojson.loads(spatial)
+            feature = geojson.Feature(geometry=geom)
+            coords = [c for c in geojson.utils.coords(feature)]
+            if len(coords) == 5:
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
+            elif len(coords) == 1:
+                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
+
         meta = {
             'DOI': extras['DOI'] if 'DOI' in extras else None,
             'PID': extras['PID'] if 'PID' in extras else None,
@@ -216,7 +233,7 @@ class CKANServer(ResumptionOAIPMH):
             'format': extras['Format'] if 'Format' in extras else None,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
             'dates': dates if dates else None,
-            'geoLocation': extras['SpatialCoverage'] if 'SpatialCoverage' in extras else None,
+            'spatialCoverage': [place, point, bbox],
         }
 
         metadata = {}
