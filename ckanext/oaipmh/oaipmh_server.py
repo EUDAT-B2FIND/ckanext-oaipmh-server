@@ -159,8 +159,10 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
+        base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
-                common.Metadata('', metadata), None)
+                common.Metadata('', metadata),
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -247,8 +249,10 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
+        base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
-                common.Metadata('', metadata), None)
+                common.Metadata('', metadata),
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
 
 
     def _record_for_dataset(self, dataset, set_spec):
@@ -316,8 +320,22 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
+        base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
-                common.Metadata('', metadata), None)
+                common.Metadata('', metadata),
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+
+    def _provinfo(self, metadata_access):
+        from urlparse import urlparse
+        o = urlparse(metadata_access)
+        base_url = ''
+        identifier = ''
+        if 'verb=GetRecord' in o.query:
+            base_url = o.geturl().split('?')[0]
+            for p in o.query.split('&'):
+                if 'identifier' in p:
+                    identifier = p.split('identifier=')[1]
+        return base_url, identifier
 
     @staticmethod
     def _filter_packages(set, cursor, from_, until, batch_size):

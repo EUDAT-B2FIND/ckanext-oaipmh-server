@@ -2,6 +2,7 @@ OAI-PMH API for B2FIND CKAN.
 This extends b2find CKAN to produce OAI-PMH metadata in DataCite format. Ckanext-oaipmh-server is based on https://github.com/kata-csc/ckanext-oaipmh
 
 **Note**: needs hotfix for resumption token in pyoai v.2.5.0, see here: https://github.com/EUDAT-B2FIND/pyoai/blob/03c790431d96024b29f3cd8575602d996350ff80/src/oaipmh/server.py#L458
+We extended pyoai by "About" section (provenance info), see here: https://github.com/EUDAT-B2FIND/pyoai/tree/prov 
 
 The list of supported verbs consists of:
 
