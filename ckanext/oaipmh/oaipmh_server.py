@@ -247,7 +247,7 @@ class CKANServer(ResumptionOAIPMH):
                 metadata[str(key)] = [value]
             else:
                 metadata[str(key)] = value
-        base_url, identifier = self._provinfo(extras['MetaDataAccess'])
+        base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
                 common.About('', base_url, identifier, '', ''))
