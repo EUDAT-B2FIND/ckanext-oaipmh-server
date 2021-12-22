@@ -250,7 +250,7 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', ''))
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
 
 
     def _record_for_dataset(self, dataset, set_spec):
