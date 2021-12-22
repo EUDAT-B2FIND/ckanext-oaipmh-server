@@ -248,7 +248,8 @@ class CKANServer(ResumptionOAIPMH):
             else:
                 metadata[str(key)] = value
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
-                common.Metadata('', metadata), None)
+                common.Metadata('', metadata),
+                common.About('', 'baseURL', 'identifier', 'datestamp', ''))
 
 
     def _record_for_dataset(self, dataset, set_spec):
