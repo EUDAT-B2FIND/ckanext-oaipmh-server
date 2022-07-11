@@ -4,7 +4,7 @@ from ckan.plugins import implements, SingletonPlugin
 #from ckan.plugins import IRoutes, IConfigurer
 from ckan.plugins import IConfigurer
 from ckan.plugins import IBlueprint
-from ckanext.oaipmh.blueprints as blueprints
+import ckanext.oaipmh.blueprints as blueprints
 
 log = logging.getLogger(__name__)
 
