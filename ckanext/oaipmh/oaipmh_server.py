@@ -13,7 +13,7 @@ from sqlalchemy import between
 from ckan.lib.helpers import url_for
 from ckan.logic import get_action
 from ckan.model import Package, Session, Group
-import utils
+import ckanext.oaipmh.utils as utils
 
 log = logging.getLogger(__name__)
 
