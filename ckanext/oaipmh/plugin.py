@@ -3,6 +3,8 @@ import os
 from ckan.plugins import implements, SingletonPlugin
 #from ckan.plugins import IRoutes, IConfigurer
 from ckan.plugins import IConfigurer
+from ckan.plugins import IBlueprint
+from ckanext.oaipmh.blueprints as blueprints
 
 log = logging.getLogger(__name__)
 
@@ -14,6 +16,7 @@ class OAIPMHPlugin(SingletonPlugin):
     '''
 #    implements(IRoutes, inherit=True)
     implements(IConfigurer)
+    implements(IBlueprint)
 
     def update_config(self, config):
         """This IConfigurer implementation causes CKAN to look in the
@@ -30,6 +33,10 @@ class OAIPMHPlugin(SingletonPlugin):
         template_dir = os.path.join(rootdir, 'ckanext',
                                     'oaipmh', 'templates')
         config['extra_template_paths'] = ','.join([template_dir, config.get('extra_template_paths', '')])
+
+    #IBlueprint
+    def get_blueprint(self):
+        return [blueprints.oai]
 
     # def before_map(self, map):
     #     '''Map the controller to be used for OAI-PMH.
