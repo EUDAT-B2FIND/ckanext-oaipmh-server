@@ -327,7 +327,7 @@ class CKANServer(ResumptionOAIPMH):
                 common.About('', base_url, identifier, '', '',dataset.metadata_modified))
 
     def _provinfo(self, metadata_access):
-        import urllib.parse as urlparse
+        from urllib.parse import urlparse
         o = urlparse(metadata_access)
         base_url = ''
         identifier = ''
