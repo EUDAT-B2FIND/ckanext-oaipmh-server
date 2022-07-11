@@ -45,7 +45,7 @@ class CKANServer(ResumptionOAIPMH):
         try:
             json_data = json.loads(js)
             json_titles = list()
-            for key, value in json_data.iteritems():
+            for key, value in json_data.items():
                 if value:
                     json_titles.append(value)
             return json_titles
@@ -87,7 +87,7 @@ class CKANServer(ResumptionOAIPMH):
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value'] # instead of language : English, that is why it is looped here
                 extras.update( {key : value} )
@@ -172,7 +172,7 @@ class CKANServer(ResumptionOAIPMH):
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
                 if key in ['spatial']:
@@ -263,7 +263,7 @@ class CKANServer(ResumptionOAIPMH):
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
                 values = value.split(";")
