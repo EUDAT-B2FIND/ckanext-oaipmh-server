@@ -33,7 +33,8 @@ def b2find_oai():
             serv = oaisrv.BatchingServer(client,
                                          metadata_registry=metadata_registry,
                                          resumption_batch_size=500)
-            parms = toolkit.request.params.mixed()
+#            parms = toolkit.request.params.mixed()
+            parms = toolkit.request.params
             res = serv.handleRequest(parms)
             response.headers['content-type'] = 'text/xml; charset=utf-8'
             return res
