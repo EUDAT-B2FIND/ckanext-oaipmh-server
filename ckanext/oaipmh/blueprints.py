@@ -37,5 +37,6 @@ def b2find_oai():
             parms = toolkit.request.params
             res = serv.handleRequest(parms)
 #            toolkit.response.headers['content-type'] = 'text/xml; charset=utf-8'
+            res.headers['content-type'] = 'text/xml; charset=utf-8'
             return res
     return {}
