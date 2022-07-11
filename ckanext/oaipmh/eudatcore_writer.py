@@ -13,7 +13,7 @@ def eudatcore_writer(element, metadata):
     e_r.set('{%s}schemaLocation' % NS_XSI, '%s https://gitlab.eudat.eu/eudat-metadata/eudat-core-schema/-/raw/master/eudat-core.xsd' % NS_EUDATCORE)
 
     map = metadata.getMap()
-    for k, v in map.iteritems():
+    for k, v in map.items():
         if v:
             if k == 'community':
                 if v:
