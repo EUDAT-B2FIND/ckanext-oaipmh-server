@@ -115,7 +115,9 @@ class CKANServer(ResumptionOAIPMH):
             place = place.split(';')[-1].strip()
 
         bbox = point = None
-        if 'spatial' in extras:
+#        if 'spatial' in extras:
+#        TODO
+        if False:
             spatial = extras['spatial']
             geom = geojson.loads(spatial)
             feature = geojson.Feature(geometry=geom)
@@ -208,7 +210,10 @@ class CKANServer(ResumptionOAIPMH):
             place = place[-1].strip()
 
         bbox = point = None
-        if 'spatial' in extras:
+
+#        if 'spatial' in extras:
+#        TODO
+        if False:
             spatial = extras['spatial']
             geom = geojson.loads(spatial)
             feature = geojson.Feature(geometry=geom)
