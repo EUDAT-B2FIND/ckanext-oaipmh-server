@@ -19,8 +19,8 @@ oai = Blueprint('oai', __name__)
 @oai.route('/oai', endpoint='b2find_oai', methods=['POST', 'GET'])
 
 def b2find_oai():
-	if 'verb' in toolkit.request.params:
-    	verb = toolkit.request.params['verb'] if toolkit.request.params['verb'] else None
+    if 'verb' in toolkit.request.params:
+        verb = toolkit.request.params['verb'] if toolkit.request.params['verb'] else None
         if verb:
             client = CKANServer()
             metadata_registry = oaimd.MetadataRegistry()
