@@ -7,7 +7,7 @@ import geojson
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
-from pylons import config
+from ckan.plugins import toolkit
 from sqlalchemy import between
 
 from ckan.lib.helpers import url_for
@@ -25,8 +25,8 @@ class CKANServer(ResumptionOAIPMH):
         '''Return identification information for this server.
         '''
         return common.Identify(
-            repositoryName=config.get('ckan.site_title', 'repository'),
-            baseURL=config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
+            repositoryName=toolkit.config.get('ckan.site_title', 'repository'),
+            baseURL=toolkit.config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
             protocolVersion="2.0",
             adminEmails=['https://www.eudat.eu/support-request'],
             earliestDatestamp=utils.get_earliest_datestamp(),
@@ -280,7 +280,7 @@ class CKANServer(ResumptionOAIPMH):
 
         pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False)]
         pids.append(package.get('id'))
-        pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
+        pids.append(toolkit.config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
