@@ -1,7 +1,8 @@
 import logging
 import os
 from ckan.plugins import implements, SingletonPlugin
-from ckan.plugins import IRoutes, IConfigurer
+#from ckan.plugins import IRoutes, IConfigurer
+from ckan.plugins import IConfigurer
 
 log = logging.getLogger(__name__)
 
@@ -11,7 +12,7 @@ class OAIPMHPlugin(SingletonPlugin):
     stanza to have the template render in case there is no parameters to the
     interface.
     '''
-    implements(IRoutes, inherit=True)
+#    implements(IRoutes, inherit=True)
     implements(IConfigurer)
 
     def update_config(self, config):
@@ -30,9 +31,9 @@ class OAIPMHPlugin(SingletonPlugin):
                                     'oaipmh', 'templates')
         config['extra_template_paths'] = ','.join([template_dir, config.get('extra_template_paths', '')])
 
-    def before_map(self, map):
-        '''Map the controller to be used for OAI-PMH.
-        '''
-        controller = 'ckanext.oaipmh.controller:OAIPMHController'
-        map.connect('oai', '/oai', controller=controller, action='index')
-        return map
+    # def before_map(self, map):
+    #     '''Map the controller to be used for OAI-PMH.
+    #     '''
+    #     controller = 'ckanext.oaipmh.controller:OAIPMHController'
+    #     map.connect('oai', '/oai', controller=controller, action='index')
+    #     return map
