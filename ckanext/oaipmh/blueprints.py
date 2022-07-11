@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask import make_response
 from ckan.plugins import toolkit
 import logging
 
@@ -37,6 +38,7 @@ def b2find_oai():
             parms = toolkit.request.params
             res = serv.handleRequest(parms)
 #            toolkit.response.headers['content-type'] = 'text/xml; charset=utf-8'
-            res.headers['content-type'] = 'text/xml; charset=utf-8'
-            return res
+            response = make_response(res)
+            response.headers['content-type'] = 'text/xml; charset=utf-8'
+            return response
     return {}
