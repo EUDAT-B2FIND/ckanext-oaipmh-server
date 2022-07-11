@@ -163,7 +163,8 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -253,7 +254,8 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
 
     def _record_for_dataset(self, dataset, set_spec):
@@ -324,7 +326,8 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
     def _provinfo(self, metadata_access):
         from urllib.parse import urlparse
