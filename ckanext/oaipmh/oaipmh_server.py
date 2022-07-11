@@ -26,7 +26,8 @@ class CKANServer(ResumptionOAIPMH):
         '''
         return common.Identify(
             repositoryName=toolkit.config.get('ckan.site_title', 'repository'),
-            baseURL=toolkit.config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
+            #baseURL=toolkit.config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
+            baseURL=toolkit.config.get('ckan.site_url', None) + '/oai',
             protocolVersion="2.0",
             adminEmails=['https://www.eudat.eu/support-request'],
             earliestDatestamp=utils.get_earliest_datestamp(),
