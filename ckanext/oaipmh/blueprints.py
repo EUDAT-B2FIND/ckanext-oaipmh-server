@@ -7,10 +7,10 @@ import oaipmh.server as oaisrv
 #from pylons import request, response
 
 #from ckan.lib.base import BaseController, render
-from oaipmh_server import CKANServer
+from ckanext.oaipmh.oaipmh_server import CKANServer
 #from rdftools import rdf_reader, dcat2rdf_writer
-from datacite_writer import datacite_writer
-from eudatcore_writer import eudatcore_writer
+from ckanext.oaipmh.datacite_writer import datacite_writer
+from ckanext.oaipmh.eudatcore_writer import eudatcore_writer
 
 #log = logging.getLogger(__name__)
 
