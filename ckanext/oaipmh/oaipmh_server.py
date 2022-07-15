@@ -166,7 +166,7 @@ class CKANServer(ResumptionOAIPMH):
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
                 None
-#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
                 )
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
@@ -261,7 +261,7 @@ class CKANServer(ResumptionOAIPMH):
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
                 None
-#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
                 )
 
 
@@ -334,7 +334,7 @@ class CKANServer(ResumptionOAIPMH):
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
                 None
-#                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
                 )
 
     def _provinfo(self, metadata_access):
