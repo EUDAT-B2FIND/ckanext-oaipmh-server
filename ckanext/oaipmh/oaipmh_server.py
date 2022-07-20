@@ -3,7 +3,7 @@
 import json
 import logging
 import re
-import geojson
+import shapely.wkt
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
@@ -115,17 +115,14 @@ class CKANServer(ResumptionOAIPMH):
             place = place.split(';')[-1].strip()
 
         bbox = point = None
-#        if 'spatial' in extras:
-#        TODO
-        if False:
+        if 'spatial' in extras:
             spatial = extras['spatial']
-            geom = geojson.loads(spatial)
-            feature = geojson.Feature(geometry=geom)
-            coords = [c for c in geojson.utils.coords(feature)]
-            if len(coords) == 5:
-                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
-            elif len(coords) == 1:
-                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
+            geom = shapely.wkt.loads(spatial)
+            if geom.geometryType() == 'Polygon':
+                coords = geom.bounds
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
+            elif geom.geometryType() == 'Point':
+                point = '{x},{y}'.format(x=geom.x, y=geom.y)
 
         meta = {
             'community': package.get('group', None),
@@ -211,17 +208,14 @@ class CKANServer(ResumptionOAIPMH):
 
         bbox = point = None
 
-#        if 'spatial' in extras:
-#        TODO
-        if False:
+        if 'spatial' in extras:
             spatial = extras['spatial']
-            geom = geojson.loads(spatial)
-            feature = geojson.Feature(geometry=geom)
-            coords = [c for c in geojson.utils.coords(feature)]
-            if len(coords) == 5:
-                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
-            elif len(coords) == 1:
-                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
+            geom = shapely.wkt.loads(spatial)
+            if geom.geometryType() == 'Polygon':
+                coords = geom.bounds
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
+            elif geom.geometryType() == 'Point':
+                point = '{x},{y}'.format(x=geom.x, y=geom.y)
 
         meta = {
             'DOI': extras['DOI'] if 'DOI' in extras else None,

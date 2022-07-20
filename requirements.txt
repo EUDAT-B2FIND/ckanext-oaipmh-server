@@ -6,3 +6,4 @@ functionally>=1.0.1
 fn>=0.4.3
 iso-639
 geojson
+shapely
