@@ -288,8 +288,8 @@ class CKANServer(ResumptionOAIPMH):
             pids.append(extras['DOI'][0])
         if 'PID' in extras:
             pids.append(extras['PID'][0])
-        if 'source' in extras:
-            pids.append(extras['source'][0])
+        if 'url' in extras:
+            pids.append(extras['url'][0])
 
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
