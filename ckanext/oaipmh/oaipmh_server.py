@@ -318,8 +318,8 @@ class CKANServer(ResumptionOAIPMH):
                 'title': package.get('title', None) or package.get('name'),
                 'coverage': coverage if coverage else [], }
 
-        iters = dataset.extras.items()
-        meta = dict(iters + meta.items())
+        iters = dict(dataset.extras.items())
+        meta.update(iters)
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
         # letters
