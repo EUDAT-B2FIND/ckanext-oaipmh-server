@@ -263,7 +263,7 @@ class CKANServer(ResumptionOAIPMH):
                 )
 
 
-    def _record_for_dataset(self, dataset, set_spec):
+    def _record_for_dataset_dc(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
@@ -288,7 +288,7 @@ class CKANServer(ResumptionOAIPMH):
 
         pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False)]
         pids.append(package.get('id'))
-        pids.append(toolkit.config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
+#        pids.append(toolkit.config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
 
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
@@ -413,7 +413,7 @@ class CKANServer(ResumptionOAIPMH):
             return self._record_for_dataset_datacite(package, set_spec)
         if metadataPrefix == 'oai_eudatcore':
             return self._record_for_dataset_eudatcore(package, set_spec)
-        return self._record_for_dataset(package, set_spec)
+        return self._record_for_dataset_dc(package, set_spec)
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
                         from_=None, until=None, batch_size=None):
@@ -460,7 +460,7 @@ class CKANServer(ResumptionOAIPMH):
             elif metadataPrefix == 'oai_eudatcore':
                 data.append(self._record_for_dataset_eudatcore(package, set_spec))
             else:
-                data.append(self._record_for_dataset(package, set_spec))
+                data.append(self._record_for_dataset_dc(package, set_spec))
         return data
 
 
