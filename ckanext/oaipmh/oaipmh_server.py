@@ -3,17 +3,17 @@
 import json
 import logging
 import re
-import geojson
+import shapely.wkt
 from oaipmh import common
 from oaipmh.common import ResumptionOAIPMH
 from oaipmh.error import IdDoesNotExistError
-from pylons import config
+from ckan.plugins import toolkit
 from sqlalchemy import between
 
 from ckan.lib.helpers import url_for
 from ckan.logic import get_action
 from ckan.model import Package, Session, Group
-import utils
+import ckanext.oaipmh.utils as utils
 
 log = logging.getLogger(__name__)
 
@@ -25,8 +25,9 @@ class CKANServer(ResumptionOAIPMH):
         '''Return identification information for this server.
         '''
         return common.Identify(
-            repositoryName=config.get('ckan.site_title', 'repository'),
-            baseURL=config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
+            repositoryName=toolkit.config.get('ckan.site_title', 'repository'),
+            #baseURL=toolkit.config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
+            baseURL=toolkit.config.get('ckan.site_url', None) + '/oai',
             protocolVersion="2.0",
             adminEmails=['https://www.eudat.eu/support-request'],
             earliestDatestamp=utils.get_earliest_datestamp(),
@@ -44,7 +45,7 @@ class CKANServer(ResumptionOAIPMH):
         try:
             json_data = json.loads(js)
             json_titles = list()
-            for key, value in json_data.iteritems():
+            for key, value in json_data.items():
                 if value:
                     json_titles.append(value)
             return json_titles
@@ -86,7 +87,7 @@ class CKANServer(ResumptionOAIPMH):
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value'] # instead of language : English, that is why it is looped here
                 extras.update( {key : value} )
@@ -116,13 +117,12 @@ class CKANServer(ResumptionOAIPMH):
         bbox = point = None
         if 'spatial' in extras:
             spatial = extras['spatial']
-            geom = geojson.loads(spatial)
-            feature = geojson.Feature(geometry=geom)
-            coords = [c for c in geojson.utils.coords(feature)]
-            if len(coords) == 5:
-                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
-            elif len(coords) == 1:
-                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
+            geom = shapely.wkt.loads(spatial)
+            if geom.geometryType() == 'Polygon':
+                coords = geom.bounds
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
+            elif geom.geometryType() == 'Point':
+                point = '{x},{y}'.format(x=geom.x, y=geom.y)
 
         meta = {
             'community': package.get('group', None),
@@ -162,7 +162,8 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
@@ -171,7 +172,7 @@ class CKANServer(ResumptionOAIPMH):
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
                 if key in ['spatial']:
@@ -206,15 +207,15 @@ class CKANServer(ResumptionOAIPMH):
             place = place[-1].strip()
 
         bbox = point = None
+
         if 'spatial' in extras:
             spatial = extras['spatial']
-            geom = geojson.loads(spatial)
-            feature = geojson.Feature(geometry=geom)
-            coords = [c for c in geojson.utils.coords(feature)]
-            if len(coords) == 5:
-                bbox = '{west},{east},{south},{north}'.format(west=coords[0][0], east=coords[2][0], south=coords[0][1], north=coords[1][1])
-            elif len(coords) == 1:
-                point = '{x},{y}'.format(x=coords[0][0], y=coords[0][1])
+            geom = shapely.wkt.loads(spatial)
+            if geom.geometryType() == 'Polygon':
+                coords = geom.bounds
+                bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
+            elif geom.geometryType() == 'Point':
+                point = '{x},{y}'.format(x=geom.x, y=geom.y)
 
         meta = {
             'DOI': extras['DOI'] if 'DOI' in extras else None,
@@ -252,17 +253,18 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
 
-    def _record_for_dataset(self, dataset, set_spec):
+    def _record_for_dataset_dc(self, dataset, set_spec):
         '''Show a tuple of a header and metadata for this dataset.
         '''
         package = get_action('package_show')({}, {'id': dataset.id})
         # Loops through extras -table:
         extras = {}
         for item in package['extras']:
-            for key, value in item.iteritems():
+            for key, value in item.items():
                 key = item['key']   # extras table is constructed as key: language, value: English
                 value = item['value']  # instead of language : English, that is why it is looped here
                 values = value.split(";")
@@ -278,9 +280,17 @@ class CKANServer(ResumptionOAIPMH):
         if temporal_begin or temporal_end:
             coverage.append("%s/%s" % (temporal_begin, temporal_end))
 
-        pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False)]
-        pids.append(package.get('id'))
-        pids.append(config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
+#        pids = [pid.get('id') for pid in package.get('pids', {}) if pid.get('id', False)]
+#        pids.append(package.get('id'))
+#        pids.append(toolkit.config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
+        pids = []
+        if 'DOI' in extras:
+            pids.append(extras['DOI'][0])
+        if 'PID' in extras:
+            pids.append(extras['PID'][0])
+        url = package.get('url', None)
+        if url:
+            pids.append(url)
 
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
@@ -310,8 +320,8 @@ class CKANServer(ResumptionOAIPMH):
                 'title': package.get('title', None) or package.get('name'),
                 'coverage': coverage if coverage else [], }
 
-        iters = dataset.extras.items()
-        meta = dict(iters + meta.items())
+        iters = dict(dataset.extras.items())
+        meta.update(iters)
         metadata = {}
         # Fixes the bug on having a large dataset being scrambled to individual
         # letters
@@ -323,10 +333,11 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified))
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                )
 
     def _provinfo(self, metadata_access):
-        from urlparse import urlparse
+        from urllib.parse import urlparse
         o = urlparse(metadata_access)
         base_url = ''
         identifier = ''
@@ -404,7 +415,7 @@ class CKANServer(ResumptionOAIPMH):
             return self._record_for_dataset_datacite(package, set_spec)
         if metadataPrefix == 'oai_eudatcore':
             return self._record_for_dataset_eudatcore(package, set_spec)
-        return self._record_for_dataset(package, set_spec)
+        return self._record_for_dataset_dc(package, set_spec)
 
     def listIdentifiers(self, metadataPrefix=None, set=None, cursor=None,
                         from_=None, until=None, batch_size=None):
@@ -451,7 +462,7 @@ class CKANServer(ResumptionOAIPMH):
             elif metadataPrefix == 'oai_eudatcore':
                 data.append(self._record_for_dataset_eudatcore(package, set_spec))
             else:
-                data.append(self._record_for_dataset(package, set_spec))
+                data.append(self._record_for_dataset_dc(package, set_spec))
         return data
 
 
