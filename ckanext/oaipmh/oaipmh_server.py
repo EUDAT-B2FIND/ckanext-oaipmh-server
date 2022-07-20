@@ -285,11 +285,11 @@ class CKANServer(ResumptionOAIPMH):
 #        pids.append(toolkit.config.get('ckan.site_url') + url_for(controller="package", action='read', id=package['name']))
         pids = []
         if 'DOI' in extras:
-            pids.append(extras['DOI'])
+            pids.append(extras['DOI'][0])
         if 'PID' in extras:
-            pids.append(extras['PID'])
+            pids.append(extras['PID'][0])
         if 'source' in extras:
-            pids.append(extras['source'])
+            pids.append(extras['source'][0])
 
         subj = [tag.get('display_name') for tag in package['tags']] if package.get('tags', None) else None
         if subj is not None and 'Discipline' in extras:
