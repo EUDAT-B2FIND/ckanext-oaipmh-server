@@ -2,6 +2,7 @@ from iso639 import languages
 from lxml.etree import SubElement
 from lxml.etree import Element
 from oaipmh.server import NS_XSI
+import re
 
 NS_OAIDATACITE = 'http://schema.datacite.org/oai/oai-1.0/'
 NS_DATACITE = 'http://datacite.org/schema/kernel-4'
@@ -14,6 +15,24 @@ event_to_dt = {'collection': 'Collected',
                'received': 'Accepted',
                'modified': 'Updated'}
 
+
+def _map_resource_type(resource_type):
+    val = resource_type.lower()
+    if re.search(r'.*photo|image.*', val):
+        rtg = 'Image'
+    elif re.search(r'.*data|questionnaire.*', val):
+        rtg = 'Dataset'
+    elif re.search(r'.*computer program|jupyter|software|source code.*', val):
+        rtg = 'Software'
+    elif re.search(r'journal article', val):
+        rtg = 'Article'
+    elif re.search(r'.*audio.*', val):
+        rtg = 'Audiovisual'
+    elif re.search(r'conference paper', val):
+        rtg = 'Conference object'
+    else:
+        rtg = 'Other'
+    return rtg
 
 def _convert_language(lang):
     '''
@@ -69,7 +88,8 @@ def datacite_writer(element, metadata):
                 e_desc.text = v[0]
                 continue
             if k == 'resourceType':
-                e_resourceType = SubElement(e_r, nsdatacite(k), resourceTypeGeneral="Other")
+                rtg = _map_resource_type(v[0])
+                e_resourceType = SubElement(e_r, nsdatacite(k), resourceTypeGeneral=rtg)
                 e_resourceType.text = v[0]
                 continue
             if k == 'subjects':
