@@ -149,6 +149,9 @@ class CKANServer(ResumptionOAIPMH):
             'spatialCoverage': [place, point, bbox],
             'temporalCoverage': temporal_coverages,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
+           # 'repositoryID': extras['repositoryID'] if 'repositoryID' in extras else None,
+           # 'repositoryName': extras['repositoryName'] if 'repositoryName' in extras else None,
+
         }
 
         metadata = {}
@@ -162,7 +165,7 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified, '', '')
+                common.About('', base_url, identifier, '', '', dataset.metadata_modified, extras.get('repositoryID', None), extras.get('repositoryName', None))
                 )
 
     def _record_for_dataset_datacite(self, dataset, set_spec):
@@ -253,7 +256,7 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified, '', '')
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified, extras.get('repositoryID', None), extras.get('repositoryName', None))
                 )
 
 
@@ -333,7 +336,7 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified)
+                common.About('', base_url, identifier, '', '',dataset.metadata_modified, extras.get('repositoryID', None), extras.get('repositoryName', None))
                 )
 
     def _provinfo(self, metadata_access):
