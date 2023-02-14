@@ -29,7 +29,7 @@ class CKANServer(ResumptionOAIPMH):
             #baseURL=toolkit.config.get('ckan.site_url', None) + url_for(controller='ckanext.oaipmh.controller:OAIPMHController', action='index'),
             baseURL=toolkit.config.get('ckan.site_url', None) + '/oai',
             protocolVersion="2.0",
-            adminEmails=['https://www.eudat.eu/support-request'],
+            adminEmails=['b2find@dkrz.de'],
             earliestDatestamp=utils.get_earliest_datestamp(),
             deletedRecord='no',
             granularity='YYYY-MM-DDThh:mm:ssZ',
