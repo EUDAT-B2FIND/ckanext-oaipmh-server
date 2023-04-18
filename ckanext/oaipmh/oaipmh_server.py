@@ -149,9 +149,6 @@ class CKANServer(ResumptionOAIPMH):
             'spatialCoverage': [place, point, bbox],
             'temporalCoverage': temporal_coverages,
             'fundingReference': extras['FundingReference'] if 'FundingReference' in extras else None,
-           # 'repositoryID': extras['repositoryID'] if 'repositoryID' in extras else None,
-           # 'repositoryName': extras['repositoryName'] if 'repositoryName' in extras else None,
-
         }
 
         metadata = {}
