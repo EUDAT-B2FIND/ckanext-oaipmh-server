@@ -1,5 +1,5 @@
 pyoai>=2.4.5
-lxml==3.7.3
+lxml
 rdflib>=4.2.1
 pointfree>=1.1.1
 functionally>=1.0.1
