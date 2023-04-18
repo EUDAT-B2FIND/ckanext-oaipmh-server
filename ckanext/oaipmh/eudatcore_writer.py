@@ -127,6 +127,12 @@ def eudatcore_writer(element, metadata):
                     e_language = SubElement(e_languages, nseudatcore('language'))
                     e_language.text = language
                 continue
+            if k == 'instrument':
+                e_instruments = SubElement(e_r, nseudatcore('instruments'))
+                for instrument in v:
+                    e_instrument = SubElement(e_instruments, nseudatcore('instrument'))
+                    e_instrument.text = instrument
+                continue
             if k == 'fundingReference':
                 e_funds = SubElement(e_r, nseudatcore('fundingReferences'))
                 for fund in v:
