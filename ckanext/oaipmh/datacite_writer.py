@@ -16,6 +16,16 @@ event_to_dt = {'collection': 'Collected',
                'modified': 'Updated'}
 
 
+def _parse_orcid(creator):
+    orcids = re.findall(r"\(ORCID: ([\d-]+)\)", creator)
+    if orcids:
+        name = creator.split(' (')[0]
+        orcid = orcids[0]
+    else:
+        name = creator
+        orcid = None
+    return name, orcid
+
 def _map_resource_type(resource_type):
     val = resource_type.lower()
     if re.search(r'.*photo|image.*', val):
@@ -101,9 +111,13 @@ def datacite_writer(element, metadata):
             if k == 'creator':
                 e_creators = SubElement(e_r, nsdatacite('creators'))
                 for creatorName in v:
+                    name,orcid = _parse_orcid(creatorName)
                     e_creator = SubElement(e_creators, nsdatacite(k))
                     e_creatorName = SubElement(e_creator, nsdatacite('creatorName'))
-                    e_creatorName.text = creatorName
+                    e_creatorName.text = name
+                    if orcid:
+                        e_nameIdentifier = SubElement(e_creator, nsdatacite('nameIdentifier'), nameIdentifierScheme='ORCID')
+                        e_nameIdentifier.text = orcid
                 continue
             if k == 'contributor':
                 e_contributors = SubElement(e_r, nsdatacite('contributors'))
