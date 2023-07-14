@@ -218,7 +218,13 @@ def datacite_writer(element, metadata):
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
                 for url in v:
-                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType='URL')
+                    if 'doi.org' in url:
+                        id_type = 'DOI'
+                    elif 'handle.net' in url:
+                        id_type = 'Handle'
+                    else:
+                        id_type = 'URL'
+                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType=id_type)
                     e_rel_id.text = url
                 continue
 
