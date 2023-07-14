@@ -198,25 +198,33 @@ def datacite_writer(element, metadata):
                     # e_date.set('dateType', event_to_dt[event['type']])
                 continue
             if k == 'DOI':
-                e_ids = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
-                e_ids.text = v[0]
+                e_id = SubElement(e_r, nsdatacite('identifier'), identifierType='DOI')
+                e_id.text = v[0]
                 continue
-            if k == 'PID' and not alt_id_exists:
-                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
-                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='PID')
-                alt_id.text = v[0]
-                alt_id_exists = True
+            if k == 'PID':
+                if map['DOI']:
+                    continue
+                e_id = SubElement(e_r, nsdatacite('identifier'), identifierType='Handle')
+                e_id.text = v[0]
                 continue
-            if k == 'source' and not alt_id_exists:
-                alt_ids = SubElement(e_r, nsdatacite('alternateIdentifiers'))
-                alt_id = SubElement(alt_ids, nsdatacite('alternateIdentifier'), alternateIdentifierType='URL')
-                alt_id.text = v[0]
-                alt_id_exists = True
+            if k == 'source':
+                if map['DOI']:
+                    continue
+                if map['PID']:
+                    continue
+                e_id = SubElement(e_r, nsdatacite('identifier'), identifierType='URL')
+                e_id.text = v[0]
                 continue
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
                 for url in v:
-                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType='URL')
+                    if 'doi.org' in url:
+                        id_type = 'DOI'
+                    elif 'handle.net' in url:
+                        id_type = 'Handle'
+                    else:
+                        id_type = 'URL'
+                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType=id_type)
                     e_rel_id.text = url
                 continue
 
