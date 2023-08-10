@@ -185,9 +185,21 @@ def datacite_writer(element, metadata):
             if k == 'fundingReference':
                 e_funds = SubElement(e_r, nsdatacite('fundingReferences'))
                 for fund in v:
+                    fund_parts = [''] * 6
+                    count = 0
+                    values = fund.split('|')[:6]
+                    for value in values:
+                        fund_parts[count] = value
+                        count += 1
                     e_fund = SubElement(e_funds, nsdatacite('fundingReference'))
                     e_fund_name = SubElement(e_fund, nsdatacite('funderName'))
-                    e_fund_name.text = fund
+                    e_fund_name.text = fund_parts[0]
+                    e_fund_identifier = SubElement(e_fund, nsdatacite('funderIdentifier'), funderIdentifierType=fund_parts[2])
+                    e_fund_identifier.text = fund_parts[1]
+                    e_fund_award_number = SubElement(e_fund, nsdatacite('awardNumber'), awardURI=fund_parts[4])
+                    e_fund_award_number.text = fund_parts[3]
+                    e_fund_award_title = SubElement(e_fund, nsdatacite('awardTitle'))
+                    e_fund_award_title.text = fund_parts[5]
                 continue
             if k == 'dates':
                 e_dates = SubElement(e_r, nsdatacite(k))
