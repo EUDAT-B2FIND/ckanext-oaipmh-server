@@ -258,7 +258,7 @@ class CKANServer(ResumptionOAIPMH):
                 'TBD',
                 '',
                 '',
-                'TBD',
+                dataset.metadata_modified,
                 'TBD',
                 'TBD')
         else:
