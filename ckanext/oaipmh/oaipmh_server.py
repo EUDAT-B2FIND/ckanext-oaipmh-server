@@ -271,7 +271,7 @@ class CKANServer(ResumptionOAIPMH):
             '',
             dataset.metadata_modified, 
             ','.join(extras.get('repositoryID', [])), 
-            ','.join(extras.get('repositoryName', []))
+            ','.join(extras.get('repositoryName', [])),
             origin_desc,
         )
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
