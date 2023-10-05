@@ -251,10 +251,33 @@ class CKANServer(ResumptionOAIPMH):
             else:
                 metadata[str(key)] = value
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
+        if "datacatalogue.cessda.eu" in base_url:
+            origin_desc = common.About(
+                '', 
+                'TBD',
+                'TBD',
+                '',
+                '',
+                'TBD',
+                'TBD',
+                'TBD')
+        else:
+            origin_desc = None
+        about = common.About(
+            '', 
+            base_url, 
+            identifier, 
+            '', 
+            '',
+            dataset.metadata_modified, 
+            ','.join(extras.get('repositoryID', [])), 
+            ','.join(extras.get('repositoryName', []))
+            origin_desc,
+        )
         return (common.Header('', dataset.name, dataset.metadata_modified, set_spec, False),
                 common.Metadata('', metadata),
-                common.About('', base_url, identifier, '', '',dataset.metadata_modified, ','.join(extras.get('repositoryID', [])), ','.join(extras.get('repositoryName', [])))
-                )
+                about,
+        )
 
 
     def _record_for_dataset_dc(self, dataset, set_spec):
