@@ -251,16 +251,18 @@ class CKANServer(ResumptionOAIPMH):
             else:
                 metadata[str(key)] = value
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
-        if "datacatalogue.cessda.eu" in base_url:
+        if "datacatalogue.cessda.eu" in base_url and 'origin_prov' in extras:
+            origin_prov = extras['origin_prov'].split('|')
             origin_desc = common.About(
-                '', 
-                'TBD',
-                'TBD',
                 '',
-                '',
-                dataset.metadata_modified,
-                'TBD',
-                'TBD')
+                origin_prov[2], #baseURL
+                origin_prov[3], #identifier
+                origin_prov[4], #datestamp
+                origin_prov[5], #metadataNamespace
+                origin_prov[0], #harvestDate
+                origin_prov[6], #repositoryID
+                origin_prov[7], #repositoryName
+                )
         else:
             origin_desc = None
         about = common.About(
@@ -269,7 +271,7 @@ class CKANServer(ResumptionOAIPMH):
             identifier, 
             '', 
             '',
-            dataset.metadata_modified, 
+            dataset.metadata_modified,
             ','.join(extras.get('repositoryID', [])), 
             ','.join(extras.get('repositoryName', [])),
             origin_desc,
