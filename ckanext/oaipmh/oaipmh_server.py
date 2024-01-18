@@ -260,7 +260,7 @@ class CKANServer(ResumptionOAIPMH):
                     '',
                     origin_prov[2], #baseURL
                     origin_prov[3], #identifier
-                    datetime.strptime(origin_prov[4], date_format), #datestamp
+                    origin_prov[4], #datestamp
                     origin_prov[5], #metadataNamespace
                     datetime.strptime(origin_prov[0], date_format), #harvestDate
                     origin_prov[6], #repositoryID
