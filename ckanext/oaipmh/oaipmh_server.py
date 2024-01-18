@@ -14,6 +14,7 @@ from ckan.lib.helpers import url_for
 from ckan.logic import get_action
 from ckan.model import Package, Session, Group
 import ckanext.oaipmh.utils as utils
+from datetime import datetime
 
 log = logging.getLogger(__name__)
 
@@ -254,13 +255,14 @@ class CKANServer(ResumptionOAIPMH):
         if "datacatalogue.cessda.eu" in base_url and 'origin_prov' in extras:
             try:
                 origin_prov = extras['origin_prov'][0].split('|')
+                date_format = "%Y-%m-%dT%H:%M:%SZ"
                 origin_desc = common.About(
                     '',
                     origin_prov[2], #baseURL
                     origin_prov[3], #identifier
-                    origin_prov[4], #datestamp
+                    datetime.strptime(origin_prov[4], date_format), #datestamp
                     origin_prov[5], #metadataNamespace
-                    origin_prov[0], #harvestDate
+                    datetime.strptime(origin_prov[0], date_format), #harvestDate
                     origin_prov[6], #repositoryID
                     origin_prov[7], #repositoryName
                     )
