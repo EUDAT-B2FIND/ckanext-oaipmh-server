@@ -253,7 +253,7 @@ class CKANServer(ResumptionOAIPMH):
         base_url, identifier = self._provinfo(extras['MetaDataAccess'][0])
         if "datacatalogue.cessda.eu" in base_url and 'origin_prov' in extras:
             try:
-                origin_prov = extras['origin_prov'].split('|')
+                origin_prov = extras['origin_prov'][0].split('|')
                 origin_desc = common.About(
                     '',
                     origin_prov[2], #baseURL
