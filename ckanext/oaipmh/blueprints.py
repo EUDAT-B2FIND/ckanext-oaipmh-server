@@ -33,7 +33,7 @@ def b2find_oai():
             metadata_registry.registerWriter('oai_eudatcore', eudatcore_writer)
             serv = oaisrv.BatchingServer(client,
                                          metadata_registry=metadata_registry,
-                                         resumption_batch_size=500)
+                                         resumption_batch_size=300)
 #            parms = toolkit.request.params.mixed()
             parms = toolkit.request.params
             res = serv.handleRequest(parms)
