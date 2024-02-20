@@ -211,12 +211,15 @@ class CKANServer(ResumptionOAIPMH):
 
         if 'spatial' in extras:
             spatial = extras['spatial']
-            geom = shapely.wkt.loads(spatial)
-            if geom.geometryType() == 'Polygon':
-                coords = geom.bounds
-                bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
-            elif geom.geometryType() == 'Point':
-                point = '{x},{y}'.format(x=geom.x, y=geom.y)
+            try:
+                geom = shapely.wkt.loads(spatial)
+                if geom.geometryType() == 'Polygon':
+                    coords = geom.bounds
+                    bbox = '{west},{east},{south},{north}'.format(west=coords[0], east=coords[2], south=coords[1], north=coords[3])
+                elif geom.geometryType() == 'Point':
+                    point = '{x},{y}'.format(x=geom.x, y=geom.y)
+            except Exception as e:
+                log.exception(f"spatial error dataset ID: {dataset.id}")
 
         meta = {
             'DOI': extras['DOI'] if 'DOI' in extras else None,
