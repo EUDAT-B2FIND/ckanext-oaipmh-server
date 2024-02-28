@@ -18,9 +18,9 @@ from datetime import datetime
 
 log = logging.getLogger(__name__)
 
-def clean_relid(relid):
-    if relid:
-        value = relid.split("|")[0]
+def clean_relid(relids):
+    if relids:
+        value = [relid.split("|")[0] for relid in relids]
     else:
         value = None
     return value
