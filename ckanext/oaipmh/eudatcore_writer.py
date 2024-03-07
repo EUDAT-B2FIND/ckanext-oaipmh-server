@@ -101,7 +101,7 @@ def eudatcore_writer(element, metadata):
                     e_id.text = v[0]
                 continue
             if k == 'relatedIdentifier':
-                e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
+                e_rel_ids = SubElement(e_r, nseudatcore('relatedIdentifiers'))
                 for relid in v:
                     relid_parts = [""] * 3
                     count = 0
@@ -112,7 +112,7 @@ def eudatcore_writer(element, metadata):
                     url = relid_parts[0]
                     id_type = relid_parts[1]
                     rel_type = relid_parts[2]
-                    e_rel_id = SubElement(e_rel_ids, nsdatacite('relatedIdentifier'), relatedIdentifierType=id_type, relationType=rel_type)
+                    e_rel_id = SubElement(e_rel_ids, nseudatcore('relatedIdentifier'), relatedIdentifierType=id_type, relationType=rel_type)
                     e_rel_id.text = url
                 continue
             if k == 'metadataAccess':
