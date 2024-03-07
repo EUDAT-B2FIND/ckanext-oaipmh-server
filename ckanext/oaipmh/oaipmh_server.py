@@ -233,7 +233,7 @@ class CKANServer(ResumptionOAIPMH):
             'PID': extras['PID'] if 'PID' in extras else None,
             'version': extras['Version'] if 'Version' in extras else None,
             'source': package.get('url', None),
-            'relatedIdentifier': clean_relid(extras['RelatedIdentifier']) if 'RelatedIdentifier' in extras else None,
+            'relatedIdentifier': extras['RelatedIdentifier'] if 'RelatedIdentifier' in extras else None,
             'creator': authors if authors else None,
             'publisher': extras['Publisher'] if 'Publisher' in extras else None,
             'publicationYear': extras['PublicationYear'] if 'PublicationYear' in extras else None,
