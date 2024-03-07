@@ -18,6 +18,13 @@ from datetime import datetime
 
 log = logging.getLogger(__name__)
 
+def clean_relid(relids):
+    if relids:
+        value = [relid.split("|")[0] for relid in relids]
+    else:
+        value = None
+    return value
+
 
 class CKANServer(ResumptionOAIPMH):
     '''A OAI-PMH implementation class for CKAN.
