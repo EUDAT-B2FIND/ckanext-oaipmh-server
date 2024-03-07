@@ -230,7 +230,7 @@ def datacite_writer(element, metadata):
             if k == 'relatedIdentifier':
                 e_rel_ids = SubElement(e_r, nsdatacite('relatedIdentifiers'))
                 for relid in v:
-                    relid_parts = [None] * 3
+                    relid_parts = [""] * 3
                     count = 0
                     values = relid.split("|")[:3]
                     for value in values:
