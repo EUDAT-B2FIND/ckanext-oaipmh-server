@@ -26,22 +26,41 @@ def _parse_orcid(creator):
         orcid = None
     return name, orcid
 
-def _map_resource_type(resource_type):
-    val = resource_type.lower()
-    if re.search(r'.*photo|image.*', val):
-        rtg = 'Image'
-    elif re.search(r'.*data|questionnaire.*', val):
-        rtg = 'Dataset'
-    elif re.search(r'.*computer program|jupyter|software|source code.*', val):
-        rtg = 'Software'
-    elif re.search(r'journal article', val):
-        rtg = 'Article'
-    elif re.search(r'.*audio.*', val):
-        rtg = 'Audiovisual'
-    elif re.search(r'conference paper', val):
-        rtg = 'Conference object'
-    else:
-        rtg = 'Other'
+oartlist=['Audiovisual','Collection','Dataset','Event',
+          'Image','InteractiveResource','Model','PhysicalObject',
+          'Service','Software','Sound','Text','Workflow']
+oartlistlow=[v.lower() for v in oartlist ]
+
+socfin=['Kvantitatiivinen','Kvalitatiivinen','Quantitative','Qualitative']
+socfinlow=[v.lower() for v in socfin ]
+
+def _map_resource_type(values):
+    rtg='Other'
+    for value in values:
+        val = value.lower()
+        if val in oartlistlow:
+            index = oartlistlow.index(val)
+            rtg = oartlist[index]
+        elif re.search(r'.*photo|image.*', val):
+            rtg = 'Image'
+        elif re.search(r'.*data|questionnaire.*', val):
+            rtg = 'Dataset'
+        elif re.search(r'.*computer program|jupyter|software|source code.*', val):
+            rtg = 'Software'
+        elif re.search(r'journal article', val):
+            rtg = 'Article'
+        elif re.search(r'.*audio.*', val):
+            rtg = 'Audiovisual'
+        elif re.search(r'conference paper', val):
+            rtg = 'Conference object'
+        elif re.search(r'^(verse|prose|non-fiction|drama)$',val):
+            rtg = 'Text'
+        elif val in socfinlow:
+            rtg = 'Text'
+        else:
+            rtg = 'Other'
+        if rtg != 'Other':
+            break
     return rtg
 
 def _convert_language(lang):
@@ -98,7 +117,8 @@ def datacite_writer(element, metadata):
                 e_desc.text = v[0]
                 continue
             if k == 'resourceType':
-                rtg = _map_resource_type(v[0])
+                # rtg = _map_resource_type(v[0])
+                rtg = _map_resource_type(v)
                 e_resourceType = SubElement(e_r, nsdatacite(k), resourceTypeGeneral=rtg)
                 e_resourceType.text = v[0]
                 continue
