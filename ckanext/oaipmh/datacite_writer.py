@@ -44,20 +44,24 @@ def _map_resource_type(values):
             rtg = OARTLIST[index]
         elif re.search(r'.*photo|image.*', val):
             rtg = 'Image'
+        elif re.search(r'.*[Dd]ata[ \-]?[Pp]aper.*', val):
+            rtg = 'Article'
         elif re.search(r'.*data|questionnaire.*', val):
             rtg = 'Dataset'
         elif re.search(r'.*computer program|jupyter|software|source code.*', val):
             rtg = 'Software'
+        elif re.search(r'.*book|working[ \-]?paper|report|pre[ \-]?print|thesis.*', val):
+            rtg = 'Text'
         elif re.search(r'journal article', val):
             rtg = 'Article'
         elif re.search(r'.*audio.*', val):
             rtg = 'Audiovisual'
-        elif re.search(r'conference paper', val):
+        elif re.search(r'^(conference paper|poster|presentation)$', val):
             rtg = 'Conference object'
         elif re.search(r'^(verse|prose|non-fiction|drama)$',val):
             rtg = 'Text'
         elif val in SOCFINLOW :
-            rtg = 'Text'
+            rtg = 'Dataset'
         else:
             rtg = 'Other'
         if rtg != 'Other':
