@@ -1,3 +1,8 @@
+# 🚨 Repository Moved
+
+> ⚠️ **Important:** This repository moved to EUDAT GitLab.  
+> 👉 New location: https://gitlab.eudat.eu/b2find/ckanext-oaipmh-server.git
+
 # OAI-PMH Extension for CKAN
 
 OAI-PMH API for B2FIND CKAN. 
